@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "ring": {
+   "cell": [
+    32,
+    32
+   ],
+   "frames": 4,
+   "fps": 10,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

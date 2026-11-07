@@ -1,0 +1,62 @@
+[
+ {
+  "id": "kernel_survivor",
+  "name": "Kernel Survivor",
+  "desc": "Defeat your first BSDemon."
+ },
+ {
+  "id": "sub_cancelled",
+  "name": "Subscription Cancelled",
+  "desc": "Defeat Little Bill."
+ },
+ {
+  "id": "smells_like_gpl",
+  "name": "Smells Like GPL",
+  "desc": "Defeat a GPL Hipster."
+ },
+ {
+  "id": "zero_trust",
+  "name": "Zero Trust",
+  "desc": "Survive a boss phase without damage."
+ },
+ {
+  "id": "oss_hero",
+  "name": "Open Source Hero",
+  "desc": "Collect 10 software patches."
+ },
+ {
+  "id": "unicorn_hunter",
+  "name": "Unicorn Hunter",
+  "desc": "Reach the boss arena in Area 5."
+ },
+ {
+  "id": "root_unlocked",
+  "name": "Root Access",
+  "desc": "Unlock all four abilities."
+ },
+ {
+  "id": "no_meetings",
+  "name": "No More Meetings",
+  "desc": "Defeat the CTO of Everything."
+ },
+ {
+  "id": "oaxaca_express",
+  "name": "Oaxaca Express",
+  "desc": "Complete the mission."
+ },
+ {
+  "id": "found_404",
+  "name": "404",
+  "desc": "Find a hidden room."
+ },
+ {
+  "id": "legacy_hw",
+  "name": "Legacy Hardware",
+  "desc": "Equip 3 hardware items at once."
+ },
+ {
+  "id": "exit_strategy",
+  "name": "Exit Strategy",
+  "desc": "Escape Silicon Valley by plane."
+ }
+]

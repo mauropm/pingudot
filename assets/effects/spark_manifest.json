@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "spark": {
+   "cell": [
+    12,
+    12
+   ],
+   "frames": 4,
+   "fps": 18,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

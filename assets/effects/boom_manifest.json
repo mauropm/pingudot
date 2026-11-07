@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "boom": {
+   "cell": [
+    20,
+    20
+   ],
+   "frames": 5,
+   "fps": 14,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

@@ -1,0 +1,15 @@
+# Godot
+.godot/
+*.tmp
+.import/
+build/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Captures
+screenshots/

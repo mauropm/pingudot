@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "bsod": {
+   "cell": [
+    32,
+    32
+   ],
+   "frames": 1,
+   "fps": 6,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

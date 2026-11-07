@@ -1,0 +1,238 @@
+{
+ "intro_1": {
+  "speaker": "",
+  "text": "1994. A slim penguin washes ashore in Silicon Valley. He has one goal: get out."
+ },
+ "intro_2": {
+  "speaker": "PINGU",
+  "text": "Let me get this straight. The ocean had everything, and humanity chose... venture capital."
+ },
+ "intro_3": {
+  "speaker": "NARRATOR",
+  "text": "Legend says a black airplane waits in Oakland. Two blue lines on its hull. The only honest thing left: trust."
+ },
+ "controls_card": {
+  "speaker": "HOW TO PENGUIN",
+  "text": "MOVE: WASD/ARROWS   RUN: HOLD MOVE   J: WING ATTACK   L: THROW DISK   K: SPECIAL   SPACE: DODGE   E: INTERACT   I: BAG   C: STATS   ESC: PAUSE"
+ },
+ "area1_intro": {
+  "speaker": "SIGN",
+  "text": "Welcome to Silicon Valley. Your dream has a 98% failure rate."
+ },
+ "area1_tip": {
+  "speaker": "PINGU",
+  "text": "Move with WASD or the arrows. J to whack something. SPACE to tumble out of trouble."
+ },
+ "area2_intro": {
+  "speaker": "SIGN",
+  "text": "We are not bankrupt. We are pre-revenue."
+ },
+ "area2_tip": {
+  "speaker": "PINGU",
+  "text": "K is for special abilities. They cost energy. L throws whatever is in your paw."
+ },
+ "area3_intro": {
+  "speaker": "SIGN",
+  "text": "Your code is not free until you understand the license."
+ },
+ "area3_tip": {
+  "speaker": "PINGU",
+  "text": "The terminals here still work. Save often. Trust nothing with a Terms of Service."
+ },
+ "area4_intro": {
+  "speaker": "SIGN",
+  "text": "Congratulations! Your company is now worth zero dollars, but your valuation is up 300%."
+ },
+ "area4_tip": {
+  "speaker": "PINGU",
+  "text": "Elite corporate guards. My favorite kind of problem: expensive and wrong."
+ },
+ "area5_intro": {
+  "speaker": "SIGN",
+  "text": "FINAL BOARDING CALL. ALL EXIT STRATEGIES REQUIRE BOARD APPROVAL."
+ },
+ "area5_warn": {
+  "speaker": "PINGU",
+  "text": "That's the gate. Whatever's behind it has a corner office. I hate corner offices."
+ },
+ "cto_intro": {
+  "speaker": "CTO",
+  "text": "YOU CANNOT LEAVE! YOUR EXIT STRATEGY HAS NOT BEEN APPROVED BY THE BOARD!"
+ },
+ "cto_p1": {
+  "speaker": "CTO",
+  "text": "Behold: SYNERGY. Phase one of a seventeen-phase roadmap."
+ },
+ "cto_p2": {
+  "speaker": "CTO",
+  "text": "Let me run it through my AI... it hallucinated a competitor. FICTIONAL. But aggressive."
+ },
+ "cto_p3": {
+  "speaker": "CTO",
+  "text": "ACTIVATING PREMIUM MODE. Every action now requires a subscription!"
+ },
+ "cto_die": {
+  "speaker": "CTO",
+  "text": "No... you cannot just... LEAVE... that's a violation of section 14.2(b)..."
+ },
+ "cto_outro": {
+  "speaker": "PINGU",
+  "text": "That's okay. I'm using Linux."
+ },
+ "bsdemon_1": {
+  "speaker": "BSDemon",
+  "text": "Have you tried compiling it yourself?"
+ },
+ "bsdemon_2": {
+  "speaker": "BSDemon",
+  "text": "YOUR LAYOUT IS NOT THE CORRECT LAYOUT!"
+ },
+ "bill_1": {
+  "speaker": "Little Bill",
+  "text": "Your freedom is currently available as a premium feature."
+ },
+ "bill_2": {
+  "speaker": "Little Bill",
+  "text": "I'm not buying you. I'm ACQUIRING your potential."
+ },
+ "hipster_1": {
+  "speaker": "GPL Hipster",
+  "text": "Actually, I wrote something similar in 1998."
+ },
+ "hipster_2": {
+  "speaker": "GPL Hipster",
+  "text": "That's a fork of a fork of a fork of MY code."
+ },
+ "bot_1": {
+  "speaker": "Security Bot",
+  "text": "THIS CARD IS NOT A VALID BADGE OF HONOR."
+ },
+ "plane_1": {
+  "speaker": "PINGU",
+  "text": "Two blue lines. Trust, version controlled. I like it."
+ },
+ "plane_2": {
+  "speaker": "NARRATOR",
+  "text": "Destination: Oaxaca City. Altitude: finally above it all."
+ },
+ "plane_3": {
+  "speaker": "",
+  "text": "Trust is not a feature. It is the flight plan."
+ },
+ "gameover_1": {
+  "speaker": "NARRATOR",
+  "text": "PINGU has stopped responding. (It was never a kernel problem.)"
+ },
+ "gameover_2": {
+  "speaker": "PINGU",
+  "text": "I'll be back. I always reboots."
+ },
+ "cp_save": {
+  "speaker": "TERMINAL",
+  "text": "Checkpoint saved. Your secrets are stored in /tmp. You're welcome."
+ },
+ "cp_full": {
+  "speaker": "TERMINAL",
+  "text": "HP and energy restored. The terminal charged you 0 coins and 0 dignity."
+ },
+ "joke_1": {
+  "speaker": "PLAQUE",
+  "text": "Employee of the month: a vending machine. Nobody challenged it."
+ },
+ "joke_2": {
+  "speaker": "PLAQUE",
+  "text": "This office is 'mission-driven'. The mission is rent."
+ },
+ "joke_3": {
+  "speaker": "PLAQUE",
+  "text": "Free hugs. Also free NDAs. Choose carefully."
+ },
+ "joke_4": {
+  "speaker": "PLAQUE",
+  "text": "WiFi: guest_5G. Password: in a PDF that needs another PDF."
+ },
+ "joke_5": {
+  "speaker": "PLAQUE",
+  "text": "The coffee machine has a roadmap. It is v0.3 'liquid, maybe'."
+ },
+ "joke_6": {
+  "speaker": "PLAQUE",
+  "text": "Sandbox: where your code pretends to be production."
+ },
+ "joke_7": {
+  "speaker": "PLAQUE",
+  "text": "We don't fire people. We give them a 'growth opportunity' downtown."
+ },
+ "joke_8": {
+  "speaker": "PLAQUE",
+  "text": "Trust levels painted on the wall. Last updated: before the IPO."
+ },
+ "joke_9": {
+  "speaker": "PLAQUE",
+  "text": "There is a 404 behind this wall. Please knock."
+ },
+ "joke_10": {
+  "speaker": "PLAQUE",
+  "text": "Open source, closed minds. Thanks for migrating."
+ },
+ "joke_11": {
+  "speaker": "PLAQUE",
+  "text": "The servers are warm. Like the community. Like a burning building."
+ },
+ "joke_12": {
+  "speaker": "PLAQUE",
+  "text": "Sharks hired here. Legal reclassified them as 'independent contractors'."
+ },
+ "joke_13": {
+  "speaker": "PLAQUE",
+  "text": "Please exit through the gift shop. The gift is leaving with no equity."
+ },
+ "joke_14": {
+  "speaker": "PLAQUE",
+  "text": "Baggage claim: where promises go to be delayed 4-6 business quarters."
+ },
+ "joke_15": {
+  "speaker": "PLAQUE",
+  "text": "Boarding requires: ticket, ID, and a signed waiver of curiosity."
+ },
+ "ev_pitch": {
+  "speaker": "FOUNDER",
+  "text": "It's like a penguin, but for your router. We raised $40M. Want in?"
+ },
+ "ev_pitch_win": {
+  "speaker": "PINGU",
+  "text": "Brilliant. Terrible. Here's a coin for your trouble."
+ },
+ "ev_atm": {
+  "speaker": "CRYPTO ATM",
+  "text": "YOUR $PINGU COIN IS WORTH LESS THAN THIS BOOTH."
+ },
+ "ev_vend": {
+  "speaker": "VENDING",
+  "text": "This machine accepts equity instead of coins. It gives you snacks."
+ },
+ "ev_hack": {
+  "speaker": "PINGU",
+  "text": "A free public terminal. Risky. Worth it. I feel alive and litigious."
+ },
+ "ev_intern": {
+  "speaker": "INTERN",
+  "text": "I worked here for 8 months. They gave me a t-shirt and existential dread."
+ },
+ "ev_elevator": {
+  "speaker": "ELEVATOR",
+  "text": "Going up? Too late. You went down three floors of scope."
+ },
+ "ev_meme": {
+  "speaker": "MEME SHRINE",
+  "text": "A tribute to a campaign that trended for 15 minutes. It heals something in you."
+ },
+ "ev_drone": {
+  "speaker": "DELIVERY DRONE",
+  "text": "YOUR PACKAGE HAS ARRIVED AT THE WRONG ADDRESS. IT IS A WEAPON."
+ },
+ "ev_shark": {
+  "speaker": "SHARK",
+  "text": "I invest in failures. Specifically yours. Here's $20. Say 'synergy'."
+ }
+}

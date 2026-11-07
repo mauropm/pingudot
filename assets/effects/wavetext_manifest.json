@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "wavetext": {
+   "cell": [
+    16,
+    16
+   ],
+   "frames": 2,
+   "fps": 10,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

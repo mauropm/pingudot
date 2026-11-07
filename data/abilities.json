@@ -1,0 +1,46 @@
+[
+ {
+  "id": "kernel_panic",
+  "name": "Kernel Panic",
+  "unlock_level": 2,
+  "energy": 20,
+  "cd": 6.0,
+  "power": 2.2,
+  "desc": "Screams internally. AoE blast damages everything nearby.",
+  "icon": "res://assets/ui/ability_kernelpanic.png",
+  "type": "aoe"
+ },
+ {
+  "id": "fork_bomb",
+  "name": "Fork Bomb",
+  "unlock_level": 3,
+  "energy": 25,
+  "cd": 9.0,
+  "power": 1.0,
+  "desc": "Spawn 4 mini-Pingus that attack nearby enemies. :(){ :|:& };:",
+  "icon": "res://assets/ui/ability_forkbomb.png",
+  "type": "clones"
+ },
+ {
+  "id": "root_access",
+  "name": "Root Access",
+  "unlock_level": 5,
+  "energy": 30,
+  "cd": 18.0,
+  "power": 0,
+  "desc": "sudo me: +50% ATK/DEF for 12s.",
+  "icon": "res://assets/ui/ability_root.png",
+  "type": "buff"
+ },
+ {
+  "id": "segfault",
+  "name": "Segmentation Fault",
+  "unlock_level": 7,
+  "energy": 15,
+  "cd": 4.5,
+  "power": 3.0,
+  "desc": "Throw a projectile that forgot its memory address. Pierces.",
+  "icon": "res://assets/ui/ability_segfault.png",
+  "type": "projectile"
+ }
+]

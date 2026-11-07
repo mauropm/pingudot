@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/BSDemon.gd" id="1_bsd"]
+
+[node name="BSDemon" type="CharacterBody2D"]
+script = ExtResource("1_bsd")

@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "fireball": {
+   "cell": [
+    8,
+    8
+   ],
+   "frames": 4,
+   "fps": 12,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "drop_chance": 0.55,
+ "pools": {
+  "common": [
+   "heal_small",
+   "en_small",
+   "cookie",
+   "coffee",
+   "sticker_gpl",
+   "fish_frozen",
+   "box_swag",
+   "usb_sticky",
+   "patch_software"
+  ],
+  "rare": [
+   "heal_big",
+   "en_big",
+   "boots_root",
+   "gpu_cheap",
+   "ssd_boost",
+   "cable_10gbe",
+   "card_honor",
+   "hat_censor",
+   "patch_software"
+  ],
+  "epic": [
+   "armor_gnu",
+   "wifi_router",
+   "monitor_curve",
+   "dodge_tonic",
+   "patch_software"
+  ],
+  "legendary": [
+   "kb_legendary",
+   "kernel_unpatched",
+   "ring_admin"
+  ]
+ },
+ "weights_base": {
+  "common": 62,
+  "rare": 25,
+  "epic": 10,
+  "legendary": 3
+ },
+ "area_weight_shift": 6
+}

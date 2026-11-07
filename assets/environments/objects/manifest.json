@@ -1,0 +1,81 @@
+{
+ "objects": {
+  "palm": {
+   "cell": [
+    32,
+    48
+   ],
+   "frames": 1
+  },
+  "atm": {
+   "cell": [
+    16,
+    24
+   ],
+   "frames": 1
+  },
+  "desk": {
+   "cell": [
+    24,
+    16
+   ],
+   "frames": 1
+  },
+  "rack": {
+   "cell": [
+    16,
+    32
+   ],
+   "frames": 1
+  },
+  "billboard": {
+   "cell": [
+    32,
+    24
+   ],
+   "frames": 1
+  },
+  "chest": {
+   "cell": [
+    16,
+    14
+   ],
+   "frames": 1
+  },
+  "checkpoint": {
+   "cell": [
+    16,
+    24
+   ],
+   "frames": 1
+  },
+  "vendor": {
+   "cell": [
+    16,
+    28
+   ],
+   "frames": 1
+  },
+  "door": {
+   "cell": [
+    16,
+    24
+   ],
+   "frames": 1
+  },
+  "spill": {
+   "cell": [
+    16,
+    16
+   ],
+   "frames": 1
+  },
+  "gate": {
+   "cell": [
+    32,
+    16
+   ],
+   "frames": 1
+  }
+ }
+}

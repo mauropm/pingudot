@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "shard": {
+   "cell": [
+    12,
+    12
+   ],
+   "frames": 2,
+   "fps": 12,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

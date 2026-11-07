@@ -1,0 +1,274 @@
+[
+ {
+  "id": "kb_legendary",
+  "name": "Legendary Mechanical Keyboard",
+  "rarity": "legendary",
+  "slot": "weapon",
+  "desc": "Cherry MX switches. Sounds like angry typing at 3AM. +ATK.",
+  "mods": {
+   "atk": 6
+  }
+ },
+ {
+  "id": "cable_10gbe",
+  "name": "The 10GbE Ethernet Cable of Destiny",
+  "rarity": "epic",
+  "slot": "weapon",
+  "desc": "Bends light. Never tangling. The prophecy was clear.",
+  "mods": {
+   "atk": 4,
+   "crit_pct": 5
+  }
+ },
+ {
+  "id": "fish_frozen",
+  "name": "Frozen Debugging Fish",
+  "rarity": "common",
+  "slot": "weapon",
+  "desc": "Rub on your code. Bugs evaporate out of fear.",
+  "mods": {
+   "atk": 2
+  }
+ },
+ {
+  "id": "boot_disk",
+  "name": "Floppy of Power",
+  "rarity": "rare",
+  "slot": "weapon",
+  "desc": "Boots anything, solves nothing. 1.44MB of pure confidence.",
+  "mods": {
+   "atk": 3,
+   "int": 2
+  }
+ },
+ {
+  "id": "armor_gnu",
+  "name": "GNU/GPL Protective Armor",
+  "rarity": "epic",
+  "slot": "armor",
+  "desc": "Copylefted. Wearing it forces you to share your socks.",
+  "mods": {
+   "def": 6,
+   "hp": 10
+  }
+ },
+ {
+  "id": "kernel_unpatched",
+  "name": "The Unpatched Kernel",
+  "rarity": "legendary",
+  "slot": "armor",
+  "desc": "Zero day included. Do not update. Updating deletes the game.",
+  "mods": {
+   "def": 8,
+   "atk": 3,
+   "hp": -5
+  }
+ },
+ {
+  "id": "gpu_cheap",
+  "name": "Suspiciously Cheap GPU",
+  "rarity": "rare",
+  "slot": "hardware",
+  "desc": "It works. It hums showtunes. Don't ask where it came from.",
+  "mods": {
+   "atk": 2,
+   "int": 2
+  }
+ },
+ {
+  "id": "ssd_boost",
+  "name": "SSD of Velocity",
+  "rarity": "rare",
+  "slot": "hardware",
+  "desc": "Boots your soul 300% faster. Terms of service apply.",
+  "mods": {
+   "spd": 3
+  }
+ },
+ {
+  "id": "mouse_ergo",
+  "name": "Ergonomic Mouse of the Ancients",
+  "rarity": "common",
+  "slot": "hardware",
+  "desc": "Prevents carpal tunnel. Causes jealousy in coworkers.",
+  "mods": {
+   "crit_pct": 4
+  }
+ },
+ {
+  "id": "wifi_router",
+  "name": "Router That Actually Works",
+  "rarity": "epic",
+  "slot": "hardware",
+  "desc": "Two bands, zero excuses. Ping of 1ms. Miracles happen.",
+  "mods": {
+   "int": 4,
+   "luck": 3
+  }
+ },
+ {
+  "id": "usb_sticky",
+  "name": "Sticky USB Pendrive",
+  "rarity": "common",
+  "slot": "hardware",
+  "desc": "Contains /etc/shadow of a company that no longer exists.",
+  "mods": {
+   "luck": 2
+  }
+ },
+ {
+  "id": "ring_admin",
+  "name": "sudo Ring",
+  "rarity": "legendary",
+  "slot": "hardware",
+  "desc": "Wearing it whispers: you already have root.",
+  "mods": {
+   "atk": 3,
+   "int": 3,
+   "luck": 3
+  }
+ },
+ {
+  "id": "hat_censor",
+  "name": "Content Moderation Beret",
+  "rarity": "rare",
+  "slot": "hardware",
+  "desc": "Silences enemies by vibe alone. Very pretentious.",
+  "mods": {
+   "def": 2,
+   "int": 3
+  }
+ },
+ {
+  "id": "sticker_gpl",
+  "name": "Sticker Bomb Laptop Decal",
+  "rarity": "common",
+  "slot": "hardware",
+  "desc": "+1 street cred. -1 resale value.",
+  "mods": {
+   "luck": 3
+  }
+ },
+ {
+  "id": "card_honor",
+  "name": "Business Card: VP of Synergy",
+  "rarity": "rare",
+  "slot": "hardware",
+  "desc": "Title only. No phone number. Nobody has ever seen him.",
+  "mods": {
+   "def": 1,
+   "luck": 2
+  }
+ },
+ {
+  "id": "box_swag",
+  "name": "Mystery Swag Box",
+  "rarity": "common",
+  "slot": "hardware",
+  "desc": "90% stickers, 10% hope, 0% sustainable materials.",
+  "mods": {
+   "hp": 6
+  }
+ },
+ {
+  "id": "monitor_curve",
+  "name": "Curved Trust Monitor",
+  "rarity": "epic",
+  "slot": "hardware",
+  "desc": "Displays trust levels. They are always 2%.",
+  "mods": {
+   "int": 5
+  }
+ },
+ {
+  "id": "boots_root",
+  "name": "Root Access Boots",
+  "rarity": "epic",
+  "slot": "boots",
+  "desc": "Stomp bugs. Literally. They flatten when you walk.",
+  "mods": {
+   "spd": 4,
+   "def": 2
+  }
+ },
+ {
+  "id": "heal_small",
+  "name": "Overpriced Avocado Toast",
+  "rarity": "common",
+  "slot": "consumable",
+  "desc": "Heals 25 HP. Costs 18 coins. This is the Valley.",
+  "mods": {
+   "hp_heal": 25
+  }
+ },
+ {
+  "id": "heal_big",
+  "name": "Family-Size Pizza (Cold)",
+  "rarity": "rare",
+  "slot": "consumable",
+  "desc": "Heals 60 HP. Tastes like a hackathon at 4AM.",
+  "mods": {
+   "hp_heal": 60
+  }
+ },
+ {
+  "id": "en_small",
+  "name": "Energy Drink: Code Red Bull",
+  "rarity": "common",
+  "slot": "consumable",
+  "desc": "+30 Energy. Side effects: opinions.",
+  "mods": {
+   "en_gain": 30
+  }
+ },
+ {
+  "id": "en_big",
+  "name": "Thermos of Questionable Coffee",
+  "rarity": "rare",
+  "slot": "consumable",
+  "desc": "+70 Energy. The office one. It's been there since 2019.",
+  "mods": {
+   "en_gain": 70
+  }
+ },
+ {
+  "id": "patch_software",
+  "name": "Software Patch",
+  "rarity": "common",
+  "slot": "material",
+  "desc": "Officially unsupported but keeps working. Collect 10.",
+  "mods": {
+   "count": 1
+  }
+ },
+ {
+  "id": "cookie",
+  "name": "Browser Cookie",
+  "rarity": "common",
+  "slot": "consumable",
+  "desc": "+12 HP. You accepted 4,000 of these. Consent is weird.",
+  "mods": {
+   "hp_heal": 12
+  }
+ },
+ {
+  "id": "coffee",
+  "name": "Free Sample Cold Brew",
+  "rarity": "common",
+  "slot": "consumable",
+  "desc": "+15 HP, -5 dignity. It was expired anyway.",
+  "mods": {
+   "hp_heal": 15
+  }
+ },
+ {
+  "id": "dodge_tonic",
+  "name": "LIQUID COURAGE (dev build)",
+  "rarity": "epic",
+  "slot": "consumable",
+  "desc": "Restores all cooldowns instantly. Regret delayed.",
+  "mods": {
+   "clear_cd": 1
+  }
+ }
+]
