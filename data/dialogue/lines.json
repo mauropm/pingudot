@@ -127,6 +127,50 @@
   "speaker": "PINGU",
   "text": "I'll be back. I always reboots."
  },
+ "miggy_intro": {
+  "speaker": "MIGGY",
+  "text": "So this is the legacy codebase. I brought a compiler and zero patience."
+ },
+ "miggy_area2": {
+  "speaker": "MIGGY",
+  "text": "Pre-revenue? I've seen worse. I've compiled worse."
+ },
+ "miggy_area3": {
+  "speaker": "MIGGY",
+  "text": "Finally, a place where the license is the weapon."
+ },
+ "miggy_area4": {
+  "speaker": "MIGGY",
+  "text": "Unicorns. Cute. I prefer a shell prompt."
+ },
+ "miggy_area5": {
+  "speaker": "MIGGY",
+  "text": "Board approval? I am the board now."
+ },
+ "miggy_idle_1": {
+  "speaker": "MIGGY",
+  "text": "It works on my machine."
+ },
+ "miggy_idle_2": {
+  "speaker": "MIGGY",
+  "text": "sudo make me a sandwich --dry-run"
+ },
+ "miggy_idle_3": {
+  "speaker": "MIGGY",
+  "text": "There is no problem a new abstraction layer can't postpone."
+ },
+ "miggy_idle_4": {
+  "speaker": "MIGGY",
+  "text": "The command line is a perfectly reasonable UI. For everything."
+ },
+ "miggy_ult": {
+  "speaker": "MIGGY",
+  "text": "Hold my terminal."
+ },
+ "miggy_win": {
+  "speaker": "MIGGY",
+  "text": "Runtime optimized. CTO deprecated."
+ },
  "cp_save": {
   "speaker": "TERMINAL",
   "text": "Checkpoint saved. Your secrets are stored in /tmp. You're welcome."

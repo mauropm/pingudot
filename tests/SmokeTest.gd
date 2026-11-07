@@ -51,11 +51,11 @@ func _ready() -> void:
 	await frames(4)
 	# give all abilities and cast each
 	GameState.unlocked_abilities.clear()
-	for id in AbilityRegistry.list_ids():
+	for id in GameState.ability_ids():
 		GameState.unlocked_abilities.append(id)
 	GameState.stats.en = 200
 	GameState.stats.max_en = 200
-	for id in AbilityRegistry.list_ids():
+	for id in GameState.ability_ids():
 		var def = AbilityRegistry.defs[id]
 		p._trigger_ability(def)
 		await frames(3)

@@ -2,12 +2,19 @@ extends Control
 class_name MainMenuScreen
 ## Title screen: New Game / Continue / Achievements / Settings / Controls.
 
+const TERMINAL_SCENE := preload("res://scenes/ui/TerminalUnlock.tscn")
+const CARD_SCENE := preload("res://scenes/ui/MiggyCard.tscn")
+
 var _box: VBoxContainer
 var _seed_edit: LineEdit
+var _secret_buf := ""
+var _secret_open := false
+var _prompt_btn: Button
 var _page := "main"
 var _controls_panel: Control
 var _selected := 0
 var _items: Array[Control] = []
+var _last_focus: Control = null
 
 
 func _ready() -> void:
@@ -67,7 +74,81 @@ func _ready() -> void:
 	var v := UISkin.label("v1.0 // 1994 build", 8, Color("5a6280"))
 	v.position = Vector2(276, 204)
 	add_child(v)
+	if GameState.is_character_unlocked("miggy"):
+		_add_root_prompt()
 	_focus_first()
+
+
+func _add_root_prompt() -> void:
+	# Discreet post-unlock entry (invisible before the secret is discovered).
+	_prompt_btn = Button.new()
+	_prompt_btn.text = "root@pingudot:~$_"
+	_prompt_btn.flat = true
+	_prompt_btn.position = Vector2(8, 202)
+	_prompt_btn.size = Vector2(140, 12)
+	_prompt_btn.add_theme_font_size_override("font_size", 8)
+	_prompt_btn.add_theme_color_override("font_color", Color("2a6a3a"))
+	_prompt_btn.add_theme_color_override("font_hover_color", Color("6ec72c"))
+	_prompt_btn.pressed.connect(_open_miggy_card)
+	add_child(_prompt_btn)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _secret_open or Main.modal != null:
+		return
+	if _seed_edit != null and _seed_edit.has_focus():
+		return
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	var k: int = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+	if k in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK, KEY_NUMLOCK, KEY_SCROLLLOCK]:
+		return
+	var ch := ""
+	if event.unicode > 0:
+		ch = char(event.unicode).to_lower()
+	elif k >= KEY_A and k <= KEY_Z:
+		ch = char(k).to_lower()
+	if ch.length() == 1 and ch >= "a" and ch <= "z":
+		_secret_buf += ch
+		if _secret_buf.length() > 4:
+			_secret_buf = _secret_buf.substr(_secret_buf.length() - 4)
+		if _secret_buf == "root":
+			_secret_buf = ""
+			_start_secret()
+	else:
+		_secret_buf = ""
+
+
+func _start_secret() -> void:
+	if _secret_open:
+		return
+	_secret_open = true
+	AudioDirector.play_sfx("miggy_unlock")
+	if GameState.is_character_unlocked("miggy"):
+		_open_miggy_card()
+		return
+	GameState.unlock_character("miggy")
+	var term := TERMINAL_SCENE.instantiate()
+	term.theme = UISkin.theme()
+	add_child(term)
+	term.finished.connect(func():
+		if is_instance_valid(term):
+			term.queue_free()
+		_open_miggy_card())
+
+
+func _open_miggy_card() -> void:
+	if has_node("MiggyCard"):
+		return
+	var card := CARD_SCENE.instantiate()
+	card.name = "MiggyCard"
+	card.theme = UISkin.theme()
+	card.seed_value = _seed_value()
+	card.back_requested.connect(func():
+		_secret_open = false
+		card.queue_free()
+		_focus_first())
+	add_child(card)
 
 
 func _focus_first() -> void:
@@ -77,12 +158,23 @@ func _focus_first() -> void:
 			return
 
 
+## Called when a modal above the title screen closes, so keyboard/controller
+## navigation resumes without needing a mouse click.
+func focus_menu() -> void:
+	if _last_focus != null and is_instance_valid(_last_focus) \
+			and _last_focus.is_inside_tree() and not _last_focus.disabled:
+		_last_focus.grab_focus()
+	else:
+		_focus_first()
+
+
 func _add_button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(124, 15)
 	b.add_theme_font_size_override("font_size", 8)
 	b.pressed.connect(cb)
+	b.focus_entered.connect(func(): _last_focus = b)
 	_box.add_child(b)
 	_items.append(b)
 	return b

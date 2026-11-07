@@ -395,7 +395,10 @@ func _finalize(index: int) -> void:
 	EventBus.area_entered.emit(index, GameState.area_names[index])
 	EventBus.objective_updated.emit(GameState.objectives.get(index, ""))
 	AudioDirector.play_music(map.get("music", "area%d" % (index + 1)))
-	EventBus.dialogue_requested.emit("area%d_intro" % (index + 1))
+	var intro_line := "area%d_intro" % (index + 1)
+	if GameState.character_id == "miggy":
+		intro_line = "miggy_intro" if index == 0 else "miggy_area%d" % (index + 1)
+	EventBus.dialogue_requested.emit(intro_line)
 
 
 func point_is_solid(global_pos: Vector2) -> bool:
@@ -500,6 +503,8 @@ func spawn_boss() -> CTOTechBoss:
 
 
 func _on_boss_dead() -> void:
+	if player != null and is_instance_valid(player):
+		player.play_victory()
 	EventBus.dialogue_requested.emit("cto_die")
 	await get_tree().create_timer(1.8).timeout
 	if is_instance_valid(self):

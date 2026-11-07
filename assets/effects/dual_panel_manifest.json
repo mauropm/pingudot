@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "dual_panel": {
+   "cell": [
+    20,
+    26
+   ],
+   "frames": 1,
+   "fps": 1,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

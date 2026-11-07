@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "gobject_clone": {
+   "cell": [
+    16,
+    20
+   ],
+   "frames": 2,
+   "fps": 8,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

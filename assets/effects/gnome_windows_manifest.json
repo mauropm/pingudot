@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "gnome_windows": {
+   "cell": [
+    44,
+    30
+   ],
+   "frames": 3,
+   "fps": 7,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

@@ -40,7 +40,7 @@ func _ready() -> void:
 	add_child(_fx)
 
 	_pingu = AnimatedSprite2D.new()
-	_pingu.sprite_frames = SpriteLib.build("res://assets/characters/pingu.png")
+	_pingu.sprite_frames = SpriteLib.build(GameState.character_def().atlas_path)
 	_pingu.animation = "run"
 	_pingu.play()
 	_pingu.position = Vector2(-30, 150)

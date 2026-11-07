@@ -20,34 +20,46 @@ func _ready() -> void:
 	_slider_row("MUSIC", 1, 82)
 	_slider_row("SFX", 2, 106)
 
-	var mute := CheckBox.new()
-	mute.text = "MUTE ALL"
-	mute.position = Vector2(80, 128)
-	mute.size = Vector2(120, 18)
+	# Compact themed toggle (a raw CheckBox fell back to default-theme sizing
+	# and spilled over the Save/Delete row).
+	var mute := Button.new()
+	mute.toggle_mode = true
+	mute.text = _mute_label(AudioDirector.muted)
+	mute.position = Vector2(80, 126)
+	mute.custom_minimum_size = Vector2(120, 18)
 	mute.add_theme_font_size_override("font_size", 8)
+	mute.add_theme_color_override("font_pressed_color", Color("f7e94b"))
 	mute.button_pressed = AudioDirector.muted
-	mute.toggled.connect(func(p): AudioDirector.set_muted(p); _save())
+	mute.toggled.connect(func(p):
+		AudioDirector.set_muted(p)
+		mute.text = _mute_label(p)
+		_save())
 	add_child(mute)
+	mute.size = Vector2(120, 18)
 
 	var save_btn := Button.new()
 	save_btn.text = "SAVE"
 	save_btn.position = Vector2(80, 150)
-	save_btn.size = Vector2(100, 18)
 	save_btn.add_theme_font_size_override("font_size", 8)
 	save_btn.pressed.connect(func(): _save(); FX.toast("SETTINGS SAVED", Color("6ec72c")))
 	add_child(save_btn)
+	save_btn.size = Vector2(100, 18)
 
 	var reset := Button.new()
 	reset.text = "DELETE SAVE"
 	reset.position = Vector2(190, 150)
-	reset.size = Vector2(100, 18)
 	reset.add_theme_font_size_override("font_size", 8)
 	reset.pressed.connect(_on_reset)
 	add_child(reset)
+	reset.size = Vector2(100, 18)
 	_reset_armed = false
 	var hint := UISkin.label("[ESC] BACK", 8, Color("5a6280"))
 	hint.position = Vector2(80, 176)
 	add_child(hint)
+
+
+func _mute_label(on: bool) -> String:
+	return "MUTE ALL: ON" if on else "MUTE ALL: OFF"
 
 
 var _reset_armed := false

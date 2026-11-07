@@ -12,6 +12,9 @@ const SFX_NAMES := [
 	"kernelpanic", "forkbomb", "rootaccess", "segfault", "fireball", "penguin",
 	"save", "door", "hazard", "blue", "stink", "boss_intro", "boss_hurt",
 	"boss_die", "victory", "ocean", "glitch", "paywall", "engine", "achievement",
+	"terminal_type", "miggy_unlock", "miggy_spawn", "miggy_shoot", "collider",
+	"gnome_shock", "mono_overdrive", "bonobo_shield", "gobject_factory",
+	"dual_wield", "ultimate_rmrf", "miggy_ult",
 ]
 const MUSIC_NAMES := [
 	"menu", "area1", "area2", "area3", "area4", "area5", "boss", "ending",

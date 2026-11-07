@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "collider_boom": {
+   "cell": [
+    40,
+    40
+   ],
+   "frames": 5,
+   "fps": 14,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

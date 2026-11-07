@@ -37,6 +37,10 @@ var _bar_hide := 0.0
 var _state_t := 0.0
 var _attack_cd := 0.0
 var _touch_cd := 0.0
+var _stun_t := 0.0
+var _pull_t := 0.0
+var _pull_center := Vector2.ZERO
+var _pull_speed := 0.0
 var _wander_target := Vector2.ZERO
 var _flash_tween: Tween
 var _home := Vector2.ZERO
@@ -122,6 +126,21 @@ func _physics_process(delta: float) -> void:
 		_attack_cd -= delta
 	if _touch_cd > 0.0:
 		_touch_cd -= delta
+	if _stun_t > 0.0:
+		_stun_t -= delta
+		velocity = Vector2.ZERO
+		if sprite != null:
+			sprite.modulate = Color(0.65, 0.9, 1.2) if int(_stun_t * 12.0) % 2 == 0 else Color.WHITE
+		if _stun_t <= 0.0 and sprite != null:
+			sprite.modulate = Color.WHITE
+		return
+	if _pull_t > 0.0:
+		_pull_t -= delta
+		var to := _pull_center - global_position
+		if to.length() > 4.0:
+			global_position += to.normalized() * minf(_pull_speed * delta, to.length())
+		velocity = Vector2.ZERO
+		return
 	_state_t -= delta
 	match state:
 		S.DEAD:
@@ -237,11 +256,13 @@ func _quip_ids() -> Array[String]:
 
 
 # ----------------------------------------------------------------- damage ----
-func take_hit(dmg: int, knockback: Vector2, crit: bool, _source := "player") -> void:
+func take_hit(dmg: int, knockback: Vector2, crit: bool, source := "player") -> void:
 	if state == S.DEAD:
 		return
 	var final := maxi(1, dmg - int(defense * 0.25))
 	hp -= final
+	if source in ["player", "ability", "clone"] and GameState.character_id == "miggy":
+		GameState.add_ultimate_charge(clampi(2 + final / 6, 2, 8))
 	FX.damage_number(global_position + Vector2(0, -12), final, crit)
 	AudioDirector.play_sfx("enemy_hurt")
 	EventBus.screen_shake.emit(2.0, 0.08)
@@ -265,6 +286,23 @@ func _flash() -> void:
 	sprite.modulate = Color(2.5, 2.5, 2.5)
 	_flash_tween = create_tween()
 	_flash_tween.tween_property(sprite, "modulate", Color.WHITE, 0.15)
+
+
+func stun(duration: float) -> void:
+	if state == S.DEAD:
+		return
+	_stun_t = maxf(_stun_t, duration)
+	velocity = Vector2.ZERO
+	FX.pop_text(global_position + Vector2(0, -22), "STUN", Color("2de3ff"), 8)
+
+
+func apply_pull(center: Vector2, duration: float, speed: float) -> void:
+	if state == S.DEAD:
+		return
+	_pull_center = center
+	_pull_t = maxf(_pull_t, duration)
+	_pull_speed = speed
+	velocity = Vector2.ZERO
 
 
 func is_dead() -> bool:

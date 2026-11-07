@@ -78,18 +78,47 @@ def items_json():
     json.dump(out, open(D("items.json"), "w"), indent=1)
 
 ABILITIES = [
- {"id": "kernel_panic", "name": "Kernel Panic", "unlock_level": 2, "energy": 20,
+ {"id": "kernel_panic", "owner": "pingu", "name": "Kernel Panic", "unlock_level": 2, "energy": 20,
   "cd": 6.0, "power": 2.2, "desc": "Screams internally. AoE blast damages everything nearby.",
   "icon": "res://assets/ui/ability_kernelpanic.png", "type": "aoe"},
- {"id": "fork_bomb", "name": "Fork Bomb", "unlock_level": 3, "energy": 25,
+ {"id": "fork_bomb", "owner": "pingu", "name": "Fork Bomb", "unlock_level": 3, "energy": 25,
   "cd": 9.0, "power": 1.0, "desc": "Spawn 4 mini-Pingus that attack nearby enemies. :(){ :|:& };:",
   "icon": "res://assets/ui/ability_forkbomb.png", "type": "clones"},
- {"id": "root_access", "name": "Root Access", "unlock_level": 5, "energy": 30,
+ {"id": "root_access", "owner": "pingu", "name": "Root Access", "unlock_level": 5, "energy": 30,
   "cd": 18.0, "power": 0, "desc": "sudo me: +50% ATK/DEF for 12s.",
   "icon": "res://assets/ui/ability_root.png", "type": "buff"},
- {"id": "segfault", "name": "Segmentation Fault", "unlock_level": 7, "energy": 15,
+ {"id": "segfault", "owner": "pingu", "name": "Segmentation Fault", "unlock_level": 7, "energy": 15,
   "cd": 4.5, "power": 3.0, "desc": "Throw a projectile that forgot its memory address. Pierces.",
   "icon": "res://assets/ui/ability_segfault.png", "type": "projectile"},
+ # ---- MIGGY (secret character) -------------------------------------------
+ {"id": "midnight_collider", "owner": "miggy", "name": "Midnight Collider", "unlock_level": 1,
+  "energy": 28, "cd": 11.0, "power": 2.4,
+  "desc": "Two blue panels. One very final diff.",
+  "icon": "res://assets/ui/ability_midnight_collider.png", "type": "collider"},
+ {"id": "gnome_shell_shock", "owner": "miggy", "name": "GNOME Shell Shock", "unlock_level": 2,
+  "energy": 24, "cd": 10.0, "power": 1.4,
+  "desc": "apt install lightning. Works on my machine.",
+  "icon": "res://assets/ui/ability_gnome_shell_shock.png", "type": "stun_shield"},
+ {"id": "mono_overdrive", "owner": "miggy", "name": "Mono Runtime Overdrive", "unlock_level": 3,
+  "energy": 30, "cd": 16.0, "power": 0.0,
+  "desc": "JIT so fast the bug reports arrive before the crash.",
+  "icon": "res://assets/ui/ability_mono_overdrive.png", "type": "overdrive"},
+ {"id": "bonobo_interface", "owner": "miggy", "name": "Bonobo Interface", "unlock_level": 4,
+  "energy": 26, "cd": 12.0, "power": 1.0,
+  "desc": "Components snap together. So do your ribs.",
+  "icon": "res://assets/ui/ability_bonobo_interface.png", "type": "shield"},
+ {"id": "gobject_factory", "owner": "miggy", "name": "GObject Factory", "unlock_level": 5,
+  "energy": 30, "cd": 14.0, "power": 1.2,
+  "desc": "g_object_new(MIGGY). Each clone gets different compiler flags.",
+  "icon": "res://assets/ui/ability_gobject_factory.png", "type": "factory"},
+ {"id": "dual_wield", "owner": "miggy", "name": "MC: Dual Wield", "unlock_level": 6,
+  "energy": 28, "cd": 14.0, "power": 1.0,
+  "desc": "Left panel: files. Right panel: folders. Zero mercy.",
+  "icon": "res://assets/ui/ability_dual_wield.png", "type": "dual_wield"},
+ {"id": "final_recursion", "owner": "miggy", "name": "The Final Recursion", "unlock_level": 1,
+  "energy": 0, "cd": 0.0, "power": 0.0, "ultimate": True,
+  "desc": "sudo rm -rf / --no-preserve-root. (Fictional. Please don't.)",
+  "icon": "res://assets/ui/ability_final_recursion.png", "type": "ultimate"},
 ]
 
 ACHIEVEMENTS = [
@@ -106,6 +135,28 @@ ACHIEVEMENTS = [
  ("legacy_hw", "Legacy Hardware", "Equip 3 hardware items at once."),
  ("exit_strategy", "Exit Strategy", "Escape Silicon Valley by plane."),
 ]
+
+CHARACTERS = [
+ {"id": "pingu", "name": "PINGU", "title": "THE SYSADMIN", "specialty": "LINUX / KERNEL / SARCASM",
+  "status": "USER", "atlas": "res://assets/characters/pingu.png",
+  "tagline": "Your dream has a 98% failure rate.",
+  "stats": {"hp": 45, "en": 30, "atk": 6, "def": 3, "spd": 4, "int": 4, "luck": 2},
+  "abilities": ["kernel_panic", "fork_bomb", "root_access", "segfault"], "ultimate": "",
+  "start_item": "fish_frozen", "unlocked": True},
+ {"id": "miggy", "name": "MIGGY", "title": "LEGENDARY OPEN SOURCE HACKER",
+  "specialty": "GNOME / MONO / MIDNIGHT", "status": "ROOT",
+  "atlas": "res://assets/characters/miggy.png",
+  "tagline": "Why click when you can compile?",
+  "stats": {"hp": 40, "en": 45, "atk": 7, "def": 2, "spd": 6, "int": 9, "luck": 3},
+  "abilities": ["midnight_collider", "gnome_shell_shock", "mono_overdrive",
+                "bonobo_interface", "gobject_factory", "dual_wield"],
+  "ultimate": "final_recursion", "start_item": "boot_disk", "unlocked": False},
+]
+
+
+def characters_json():
+    json.dump(CHARACTERS, open(D("characters.json"), "w"), indent=1)
+
 
 def achievements_json():
     json.dump([{"id": a, "name": n, "desc": d} for a, n, d in ACHIEVEMENTS],
@@ -162,6 +213,18 @@ DIALOGUE = {
  "plane_3": {"speaker": "", "text": "Trust is not a feature. It is the flight plan."},
  "gameover_1": {"speaker": "NARRATOR", "text": "PINGU has stopped responding. (It was never a kernel problem.)"},
  "gameover_2": {"speaker": "PINGU", "text": "I'll be back. I always reboots."},
+ # ---- MIGGY (secret) ------------------------------------------------------
+ "miggy_intro": {"speaker": "MIGGY", "text": "So this is the legacy codebase. I brought a compiler and zero patience."},
+ "miggy_area2": {"speaker": "MIGGY", "text": "Pre-revenue? I've seen worse. I've compiled worse."},
+ "miggy_area3": {"speaker": "MIGGY", "text": "Finally, a place where the license is the weapon."},
+ "miggy_area4": {"speaker": "MIGGY", "text": "Unicorns. Cute. I prefer a shell prompt."},
+ "miggy_area5": {"speaker": "MIGGY", "text": "Board approval? I am the board now."},
+ "miggy_idle_1": {"speaker": "MIGGY", "text": "It works on my machine."},
+ "miggy_idle_2": {"speaker": "MIGGY", "text": "sudo make me a sandwich --dry-run"},
+ "miggy_idle_3": {"speaker": "MIGGY", "text": "There is no problem a new abstraction layer can't postpone."},
+ "miggy_idle_4": {"speaker": "MIGGY", "text": "The command line is a perfectly reasonable UI. For everything."},
+ "miggy_ult": {"speaker": "MIGGY", "text": "Hold my terminal."},
+ "miggy_win": {"speaker": "MIGGY", "text": "Runtime optimized. CTO deprecated."},
  # checkpoints
  "cp_save": {"speaker": "TERMINAL", "text": "Checkpoint saved. Your secrets are stored in /tmp. You're welcome."},
  "cp_full": {"speaker": "TERMINAL", "text": "HP and energy restored. The terminal charged you 0 coins and 0 dignity."},
@@ -437,6 +500,7 @@ def build_maps():
 
 if __name__ == "__main__":
     items_json()
+    characters_json()
     json.dump(ABILITIES, open(D("abilities.json"), "w"), indent=1)
     achievements_json()
     loot_json()

@@ -128,7 +128,7 @@ project.godot              # 384x216, nearest filtering, integer scaling, InputM
 assets/                    # generated PNG atlases, WAV chiptunes, BMFont
   characters/ enemies/ environments/ effects/ ui/ audio/ fonts/
 data/
-  items.json abilities.json dialogue/lines.json loot/tables.json
+  items.json abilities.json characters.json dialogue/lines.json loot/tables.json
   achievements/achievements.json levels/area1..5.json
 scenes/
   main/Main.tscn           # boot scene (autoload Main runs the show)
@@ -168,6 +168,11 @@ Key design decisions:
   a `TileMapLayer` backed by a generated `TileSetAtlasSource`; wall runs merge
   into `StaticBody2D` rectangles for cheap, precise collision.
 - **Seeded RNG** (`GameState.roll_rng()`) makes drops and spawns reproducible.
+- **Character registry**: `data/characters.json` + `CharacterDefinition` drive
+  playable characters (stats, ability sets, atlas, starter item). The Player,
+  HUD and save system are character-agnostic; the default is Pingu. A
+  developer-facing design/QA document for the hidden character lives in
+  `MIGGY_EASTER_EGG.md`.
 
 ## Asset production note
 
@@ -212,6 +217,16 @@ godot --headless --path . res://tests/Combat.tscn
 # 3d) First-life flow (intro -> dialogue dismissible with J -> attack works,
 #     movement locked while frozen, unlocked after)
 godot --headless --path . res://tests/FirstLife.tscn
+
+# 3e) Hidden character: unlock sequence, six powers, ultimate, save/load,
+#     effect cleanup and Pingu regression (see MIGGY_EASTER_EGG.md)
+godot --headless --path . res://tests/Miggy.tscn
+
+# 3f) Inventory UI detail-panel replacement (selecting items must not stack text)
+godot --headless --path . res://tests/Inventory.tscn
+
+# 3g) Settings layout (mute toggle must not overlap the save buttons)
+godot --headless --path . res://tests/Settings.tscn
 
 # 4) Visual capture (opens a window, writes PNGs to /tmp/pingudot_shots)
 godot --path . res://tests/VisualCheck.tscn

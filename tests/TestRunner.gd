@@ -145,7 +145,37 @@ func _run() -> void:
 	var ach = JSON.parse_string(FileAccess.get_file_as_string("res://data/achievements/achievements.json"))
 	check(ach.size() >= 12, "at least 12 achievements (%d)" % ach.size())
 	var abils = JSON.parse_string(FileAccess.get_file_as_string("res://data/abilities.json"))
-	check(abils.size() == 4, "4 abilities defined")
+	check(abils.size() == 11, "11 abilities defined (4 Pingu + 6 MIGGY + ultimate)")
+	var pingu_abils := 0
+	var miggy_abils := 0
+	for ab in abils:
+		if ab.get("owner", "pingu") == "pingu":
+			pingu_abils += 1
+		elif ab.get("owner") == "miggy" and not ab.get("ultimate", false):
+			miggy_abils += 1
+	check(pingu_abils == 4, "Pingu has 4 abilities")
+	check(miggy_abils == 6, "MIGGY has 6 regular powers")
+	var chars = JSON.parse_string(FileAccess.get_file_as_string("res://data/characters.json"))
+	check(chars is Array and chars.size() == 2, "2 characters defined")
+	for chdef in chars:
+		check(ResourceLoader.exists(chdef["atlas"]), "character atlas: " + chdef["id"])
+		for aid in chdef["abilities"]:
+			var found := false
+			for ab in abils:
+				if ab["id"] == aid:
+					found = true
+			check(found, "%s ability exists: %s" % [chdef["id"], aid])
+	_check_sprite("res://assets/characters/miggy.png",
+		["idle", "walk", "run", "attack", "ranged", "special", "dodge", "hurt",
+		 "death", "victory", "interact", "spawn", "ultimate", "portrait",
+		 "idle_back", "walk_back"])
+	for fx in ["collider_panel", "collider_boom", "gnome_windows", "gnome_wave",
+			"code_frag", "mono_aura", "bonobo_shield", "gobject_clone", "file_proj",
+			"folder_proj", "dual_panel", "vortex"]:
+		check(ResourceLoader.exists("res://assets/effects/%s.png" % fx), "MIGGY fx: " + fx)
+	for ab in abils:
+		if ab.get("owner") == "miggy":
+			check(ResourceLoader.exists(ab["icon"]), "MIGGY icon: " + ab["id"])
 
 	section("Area maps (walls, reachability)")
 	for area_i in 5:

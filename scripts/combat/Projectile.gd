@@ -12,6 +12,8 @@ var crit := false
 var life := 2.2
 var status_effect := ""          # optional extra effect applied on hit
 var coin_steal := 0
+var splash_radius := 0.0
+var splash_damage := 0
 
 var _tex_frames: SpriteFrames
 var _vis_scale := 1.0
@@ -58,7 +60,10 @@ func _physics_process(delta: float) -> void:
 		die()
 		return
 	if _hits_wall():
-		FX.spark(global_position)
+		if owner_kind == "player" and splash_radius > 0.0:
+			_explode()
+		else:
+			FX.spark(global_position)
 		die()
 
 
@@ -75,14 +80,39 @@ func _on_body_entered(body: Node) -> void:
 	if owner_kind == "player" and body is EnemyBase and not body.is_dead():
 		body.take_hit(damage, direction * knockback, crit, "player")
 		_hit.append(body.get_rid())
+		if splash_radius > 0.0:
+			_explode()
 		if not pierce:
 			die()
 	elif owner_kind == "enemy" and body is Player:
 		var pl := body as Player
 		var dir: Vector2 = (pl.global_position - global_position).normalized()
-		pl.take_damage(damage, dir, status_effect, coin_steal)
+		var res := pl.receive_projectile(damage, dir, status_effect, coin_steal)
+		if res == 2:
+			# Bonobo Interface reflected it — send it back at the enemies.
+			owner_kind = "player"
+			collision_mask = 4
+			direction = -direction
+			damage = maxi(1, int(damage * 1.2))
+			speed = maxf(speed, 170.0)
+			life = maxf(life, 1.6)
+			_hit.clear()
+			var spr := get_child(0) as AnimatedSprite2D
+			if spr != null:
+				spr.flip_h = direction.x < 0
+			return
 		if not pierce:
 			die()
+
+
+func _explode() -> void:
+	FX.boom(global_position)
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var eb := e as EnemyBase
+		if eb == null or eb.is_dead():
+			continue
+		if eb.global_position.distance_to(global_position) <= splash_radius:
+			eb.take_hit(splash_damage, (eb.global_position - global_position).normalized() * 90.0, false, "player")
 
 
 func die() -> void:

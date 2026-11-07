@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "gnome_wave": {
+   "cell": [
+    36,
+    36
+   ],
+   "frames": 4,
+   "fps": 12,
+   "loop": false,
+   "row_y": 0
+  }
+ }
+}

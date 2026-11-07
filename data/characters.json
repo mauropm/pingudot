@@ -1,0 +1,58 @@
+[
+ {
+  "id": "pingu",
+  "name": "PINGU",
+  "title": "THE SYSADMIN",
+  "specialty": "LINUX / KERNEL / SARCASM",
+  "status": "USER",
+  "atlas": "res://assets/characters/pingu.png",
+  "tagline": "Your dream has a 98% failure rate.",
+  "stats": {
+   "hp": 45,
+   "en": 30,
+   "atk": 6,
+   "def": 3,
+   "spd": 4,
+   "int": 4,
+   "luck": 2
+  },
+  "abilities": [
+   "kernel_panic",
+   "fork_bomb",
+   "root_access",
+   "segfault"
+  ],
+  "ultimate": "",
+  "start_item": "fish_frozen",
+  "unlocked": true
+ },
+ {
+  "id": "miggy",
+  "name": "MIGGY",
+  "title": "LEGENDARY OPEN SOURCE HACKER",
+  "specialty": "GNOME / MONO / MIDNIGHT",
+  "status": "ROOT",
+  "atlas": "res://assets/characters/miggy.png",
+  "tagline": "Why click when you can compile?",
+  "stats": {
+   "hp": 40,
+   "en": 45,
+   "atk": 7,
+   "def": 2,
+   "spd": 6,
+   "int": 9,
+   "luck": 3
+  },
+  "abilities": [
+   "midnight_collider",
+   "gnome_shell_shock",
+   "mono_overdrive",
+   "bonobo_interface",
+   "gobject_factory",
+   "dual_wield"
+  ],
+  "ultimate": "final_recursion",
+  "start_item": "boot_disk",
+  "unlocked": false
+ }
+]

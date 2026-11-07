@@ -132,6 +132,35 @@ def sfx():
     s["paywall"] = padsum(tone(880, 0.07, "square", 0.35), tone(740, 0.07, "square", 0.35), tone(622, 0.12, "square", 0.35))
     s["engine"] = padsum(noise_burst(1.0, 0.4, lp=300), tone(70, 1.0, "square", 0.3, duty=0.3))
     s["achievement"] = seq([72, 76, 79, 84, 88], "tri", 0.4, step=0.07)
+    # ---- MIGGY / secret character -------------------------------------------
+    s["terminal_type"] = padsum(tone(1400, 0.025, "square", 0.25, decay=0.02),
+                                tone(900, 0.015, "square", 0.15))
+    s["miggy_unlock"] = padsum(seq([76, 79, 83, 88], "square", 0.35, step=0.09),
+                               seq([64, None, 64, None], "tri", 0.2, step=0.18))
+    s["miggy_spawn"] = padsum(slide(1600, 180, 0.4, "square", 0.3, duty=0.2),
+                              noise_burst(0.25, 0.3))
+    s["miggy_shoot"] = slide(1300, 500, 0.12, "square", 0.35, duty=0.25)
+    s["collider"] = padsum(slide(120, 800, 0.45, "square", 0.3, duty=0.3),
+                           noise_burst(0.5, 0.6, lp=1600),
+                           slide(600, 60, 0.35, "sine", 0.5))
+    s["gnome_shock"] = padsum(noise_burst(0.35, 0.4, lp=5000),
+                              seq([96, 91, 88, 84, 79], "square", 0.3, step=0.05, duty=0.15))
+    s["mono_overdrive"] = padsum(slide(180, 1400, 0.55, "square", 0.35, duty=0.25),
+                                 seq([72, 76, 79, 84, 88], "tri", 0.25, step=0.08))
+    s["bonobo_shield"] = padsum(tone(740, 0.12, "square", 0.3, duty=0.1),
+                                tone(1108, 0.3, "tri", 0.4),
+                                tone(740, 0.15, "square", 0.2, duty=0.1))
+    s["gobject_factory"] = padsum(seq([72, 79, 84], "square", 0.35, step=0.07),
+                                  noise_burst(0.12, 0.2))
+    s["dual_wield"] = padsum(tone(900, 0.04, "square", 0.3),
+                             tone(1200, 0.05, "square", 0.3),
+                             noise_burst(0.1, 0.2, lp=3000))
+    s["ultimate_rmrf"] = padsum(slide(120, 28, 2.2, "sine", 0.7),
+                                noise_burst(2.0, 0.45, lp=600),
+                                seq([96, 84, 72, 60, 48, 36], "square", 0.3, step=0.18, duty=0.2),
+                                slide(2000, 200, 0.6, "square", 0.2, duty=0.1))
+    s["miggy_ult"] = padsum(tone(55, 0.8, "tri", 0.6),
+                            noise_burst(0.5, 0.35, lp=500))
     for name, data in s.items():
         if len(data) < SR * 0.03:
             data = np.concatenate([data, np.zeros(SR // 50)])

@@ -5,6 +5,7 @@ class_name HUD
 var _font: Font
 var _portrait: AtlasTexture
 var _ability_icons: Dictionary = {}
+var _char_id := ""
 var _interact_hint := ""
 var _toasts: Array = []          # [{text, t, color}]
 var _time := 0.0
@@ -17,14 +18,7 @@ func _ready() -> void:
 	add_to_group("hud")
 	theme = UISkin.theme()
 	_font = load(UISkin.FONT)
-	var anims := SpriteLib.load_manifest("res://assets/characters/pingu.png")
-	var p: Dictionary = anims["portrait"]
-	var tex: Texture2D = load("res://assets/characters/pingu.png")
-	_portrait = AtlasTexture.new()
-	_portrait.atlas = tex
-	_portrait.region = Rect2(0, p["row_y"], p["cell"][0], p["cell"][1])
-	for id in AbilityRegistry.defs:
-		_ability_icons[id] = AbilityRegistry.defs[id].icon
+	_refresh_character()
 	EventBus.interact_hint.connect(_on_hint)
 	EventBus.achievement_unlocked.connect(_on_achievement)
 	EventBus.sfx.connect(func(n): AudioDirector.play_sfx(n))
@@ -42,10 +36,30 @@ func _on_achievement(_id: String, display_name: String) -> void:
 	toast("ACHIEVEMENT: %s" % display_name, Color("f7e94b"))
 
 
+func _refresh_character() -> void:
+	_char_id = GameState.character_id
+	var def := CharacterRegistry.get_def(_char_id)
+	var anims := SpriteLib.load_manifest(def.atlas_path)
+	if anims.has("portrait"):
+		var p: Dictionary = anims["portrait"]
+		var tex: Texture2D = load(def.atlas_path)
+		_portrait = AtlasTexture.new()
+		_portrait.atlas = tex
+		_portrait.region = Rect2(0, p["row_y"], p["cell"][0], p["cell"][1])
+	else:
+		_portrait = null
+	_ability_icons.clear()
+	for id in GameState.ability_ids():
+		if AbilityRegistry.defs.has(id):
+			_ability_icons[id] = AbilityRegistry.defs[id].icon
+
+
 func _process(delta: float) -> void:
 	_time += delta
 	if not visible:
 		return
+	if GameState.character_id != _char_id:
+		_refresh_character()
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player")
 	# decay toasts
@@ -101,7 +115,7 @@ func _draw() -> void:
 	var x := 6.0
 	var sel := GameState.selected_ability
 	var i := 1
-	for id in AbilityRegistry.list_ids():
+	for id in GameState.ability_ids():
 		var unlocked: bool = id in GameState.unlocked_abilities
 		var r := Rect2(x, 190, 20, 20)
 		draw_rect(r, Color(0, 0, 0, 0.7))
@@ -121,6 +135,17 @@ func _draw() -> void:
 		draw_string(_font, Vector2(x + 6, 189), str(i), HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("9aa4b2"))
 		x += 24.0
 		i += 1
+	# ultimate meter (MIGGY)
+	if GameState.has_ultimate():
+		var ratio := clampf(GameState.ultimate_charge / 100.0, 0.0, 1.0)
+		var ur := Rect2(6, 178, 144, 7)
+		draw_rect(ur, Color(0, 0, 0, 0.75))
+		draw_rect(Rect2(ur.position + Vector2(1, 1), Vector2(142 * ratio, 5)),
+			Color("7a3fe8"))
+		draw_rect(ur, Color("c77dff") if GameState.ultimate_charge >= 100 else Color("404050"), false, 1)
+		var ult_label := "R: ULT %d%%" % GameState.ultimate_charge
+		draw_string(_font, Vector2(154, 187), ult_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 8,
+			Color("f7e94b") if GameState.ultimate_charge >= 100 else Color("9aa4b2"))
 	# dodge pip
 	if _player != null and _player.get_cooldown("dodge") > 0.0:
 		draw_string(_font, Vector2(x + 2, 203), "SPACE", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.55, 0.55, 0.6))
@@ -129,6 +154,7 @@ func _draw() -> void:
 	# -- status effects ---------------------------------------------------------
 	if _player != null:
 		var sx := 6.0
+		var sy := 166.0 if GameState.has_ultimate() else 176.0
 		for k in _player.active_statuses():
 			var col := Color("6ec72c")
 			match k:
@@ -136,7 +162,8 @@ func _draw() -> void:
 				"port": col = Color("f7c94b")
 				"lic": col = Color("e2282e")
 				"water": col = Color("2de3ff")
-			draw_rect(Rect2(sx, 176, 8, 8), col)
+				"shield": col = Color("c77dff")
+			draw_rect(Rect2(sx, sy, 8, 8), col)
 			sx += 10.0
 	# -- interact hint ----------------------------------------------------------
 	if _interact_hint != "":

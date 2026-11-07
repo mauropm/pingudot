@@ -14,6 +14,19 @@ const EFFECT_ATLAS := {
 	"wavetext": "res://assets/effects/wavetext.png",
 	"bsod": "res://assets/effects/bsod.png",
 	"clone": "res://assets/effects/clone.png",
+	"collider_panel": "res://assets/effects/collider_panel.png",
+	"collider_boom": "res://assets/effects/collider_boom.png",
+	"gnome_windows": "res://assets/effects/gnome_windows.png",
+	"gnome_wave": "res://assets/effects/gnome_wave.png",
+	"code_frag": "res://assets/effects/code_frag.png",
+	"mono_aura": "res://assets/effects/mono_aura.png",
+	"bonobo_shield": "res://assets/effects/bonobo_shield.png",
+	"gobject_clone": "res://assets/effects/gobject_clone.png",
+	"file_proj": "res://assets/effects/file_proj.png",
+	"folder_proj": "res://assets/effects/folder_proj.png",
+	"dual_panel": "res://assets/effects/dual_panel.png",
+	"vortex": "res://assets/effects/vortex.png",
+	"term_cursor": "res://assets/effects/term_cursor.png",
 }
 
 var _frames_cache: Dictionary = {}
@@ -31,7 +44,8 @@ func toast(text: String, color := Color("f2f2f2")) -> void:
 
 
 ## One-shot animated sprite effect from an atlas.
-func spawn_effect(atlas_key: String, pos: Vector2, speed_mult := 1.0) -> AnimatedSprite2D:
+func spawn_effect(atlas_key: String, pos: Vector2, speed_mult := 1.0,
+		lifetime := 0.0) -> AnimatedSprite2D:
 	var parent := _container()
 	if parent == null:
 		return null
@@ -53,7 +67,12 @@ func spawn_effect(atlas_key: String, pos: Vector2, speed_mult := 1.0) -> Animate
 	s.position = pos
 	s.play()
 	s.animation_finished.connect(func(): s.queue_free())
-	if not sf.get_animation_loop(anim_name):
+	if lifetime > 0.0:
+		var lt := get_tree().create_timer(lifetime)
+		lt.timeout.connect(func():
+			if is_instance_valid(s):
+				s.queue_free())
+	elif not sf.get_animation_loop(anim_name):
 		var t := get_tree().create_timer(1.2)
 		t.timeout.connect(func():
 			if is_instance_valid(s):
@@ -81,10 +100,12 @@ func boom(pos: Vector2) -> void:
 	spawn_effect("boom", pos)
 
 
-func slash_arc(pos: Vector2, dir: Vector2) -> void:
+func slash_arc(pos: Vector2, dir: Vector2, tint := Color.WHITE) -> void:
 	var s := spawn_effect("slash", pos)
-	if s and dir.x < 0:
-		s.flip_h = true
+	if s:
+		if dir.x < 0:
+			s.flip_h = true
+		s.modulate = tint
 
 
 func levelup_ring(pos: Vector2) -> void:
@@ -129,10 +150,11 @@ func pop_text(pos: Vector2, text: String, color := Color.WHITE, size := 8) -> vo
 ## Launch a projectile (used by player ranged/abilities and enemies).
 func shoot(frames_key: String, origin: Vector2, dir: Vector2, dmg: int,
 		owner_kind := "player", speed := 150.0, kb := 90.0, pierce := false,
-		status := "", coin_steal := 0, crit := false, vis_scale := 1.0) -> void:
+		status := "", coin_steal := 0, crit := false, vis_scale := 1.0,
+		splash_radius := 0.0, splash_damage := 0) -> Projectile:
 	var parent := _container()
 	if parent == null:
-		return
+		return null
 	var p := Projectile.new()
 	if not _frames_cache.has(frames_key):
 		var path: String = EFFECT_ATLAS.get(frames_key, frames_key)
@@ -145,8 +167,23 @@ func shoot(frames_key: String, origin: Vector2, dir: Vector2, dmg: int,
 	p.status_effect = status
 	p.coin_steal = coin_steal
 	p.crit = crit
+	p.splash_radius = splash_radius
+	p.splash_damage = splash_damage
 	p.position = origin
 	parent.add_child(p)
+	return p
+
+
+func spawn_helper(origin: Vector2, owner: Node, dmg: int, life := 8.0) -> void:
+	var parent := _container()
+	if parent == null:
+		return
+	if not _frames_cache.has("gobject_clone"):
+		_frames_cache["gobject_clone"] = SpriteLib.build(EFFECT_ATLAS["gobject_clone"])
+	var c := ForkBombClone.new()
+	c.setup(_frames_cache["gobject_clone"], owner, dmg, life)
+	c.position = origin
+	parent.add_child(c)
 
 
 func spawn_clone(origin: Vector2, owner: Node, dmg: int, life := 6.0) -> void:

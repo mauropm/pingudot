@@ -47,7 +47,8 @@ func unlock(id: String) -> void:
 	if unlocked.has(id):
 		return
 	unlocked[id] = int(Time.get_unix_time_from_system())
-	SaveSystem.save_profile(unlocked, {})
+	var prof := SaveSystem.load_profile()
+	SaveSystem.save_profile(unlocked, prof.get("unlocks", {}))
 	EventBus.achievement_unlocked.emit(id, display_name(id))
 	queue.append(id)
 	AudioDirector.play_sfx("achievement")

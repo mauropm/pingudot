@@ -52,25 +52,55 @@ var _nearest_interact: Node = null
 
 var effects_container: Node2D
 
+# --- character / MIGGY systems ---------------------------------------------
+var _char: CharacterDefinition
+var _spawn_t := 0.0
+var _overdrive_t := 0.0
+var _shield_hp := 0
+var _shield_max := 0
+var _shield_t := 0.0
+var _reflect_pct := 0.0
+var _shield_fx: AnimatedSprite2D
+var _aura_fx: AnimatedSprite2D
+var _ghost_t := 0.0
+var _dual: Node
+var _victory_t := 0.0
+var _ult_spark_t := 0.0
+
 
 func _ready() -> void:
 	add_to_group("player")
 	stats = GameState.stats
+	_char = GameState.character_def()
 	_register_ability_actions()
 	_build_nodes()
 	EventBus.player_hp_changed.connect(_on_hp_changed)
 	EventBus.screen_shake.connect(func(s, _d): _shake = maxf(_shake, s))
+	if GameState.character_id == "miggy":
+		_spawn_t = 0.9
+		sprite.play("spawn")
+		AudioDirector.play_sfx("miggy_spawn")
+		for i in 3:
+			var frag := FX.spawn_effect("code_frag",
+				global_position + Vector2(randf_range(-14, 14), randf_range(-16, 6)), 1.0, 0.9)
+			if frag:
+				frag.modulate = Color("c77dff")
 
 
 func _register_ability_actions() -> void:
-	# Hotkeys 1-4 select + cast abilities directly (bonus beyond K).
-	for i in range(1, 5):
+	# Hotkeys 1-6 select + cast abilities directly (bonus beyond K).
+	for i in range(1, 7):
 		var an := "ability_%d" % i
 		if not InputMap.has_action(an):
 			InputMap.add_action(an)
 			var ev := InputEventKey.new()
 			ev.physical_keycode = 48 + i
 			InputMap.action_add_event(an, ev)
+	if not InputMap.has_action("ultimate"):
+		InputMap.add_action("ultimate")
+		var r := InputEventKey.new()
+		r.physical_keycode = KEY_R
+		InputMap.action_add_event("ultimate", r)
 
 
 func _build_nodes() -> void:
@@ -86,7 +116,7 @@ func _build_nodes() -> void:
 	add_child(shape)
 
 	sprite = AnimatedSprite2D.new()
-	sprite.sprite_frames = SpriteLib.build("res://assets/characters/pingu.png")
+	sprite.sprite_frames = SpriteLib.build(_char.atlas_path if _char != null else "res://assets/characters/pingu.png")
 	sprite.z_index = 10
 	add_child(sprite)
 	sprite.play("idle")
@@ -140,7 +170,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_dodge()
 	elif event.is_action_pressed("interact"):
 		_try_interact()
-	for i in range(1, 5):
+	elif event.is_action_pressed("ultimate"):
+		_try_ultimate()
+	for i in range(1, 7):
 		if event.is_action_pressed("ability_%d" % i):
 			_select_and_cast_slot(i)
 
@@ -198,13 +230,22 @@ func _update_footsteps(delta: float) -> void:
 		_step_t -= delta
 		if _step_t <= 0.0:
 			_step_t = 0.28 if _run else 0.38
-			AudioDirector.play_sfx("step", -12.0, 0.15)
+			if GameState.character_id == "miggy":
+				AudioDirector.play_sfx("terminal_type", -14.0, 0.2)
+			else:
+				AudioDirector.play_sfx("step", -12.0, 0.15)
 	if velocity.length() < 2.0 and state == State.FREE:
 		_idle_quip_t -= delta
 		if _idle_quip_t <= 0.0:
 			_idle_quip_t = randf_range(16.0, 30.0)
-			AudioDirector.play_sfx("penguin", -6.0, 0.1)
-			FX.pop_text(global_position + Vector2(0, -22), "hmph.", Color("9aa4b2"), 8)
+			if GameState.character_id == "miggy":
+				var qids := ["miggy_idle_1", "miggy_idle_2", "miggy_idle_4"]
+				var q := DialogueDB.get_line(qids[randi() % qids.size()])
+				AudioDirector.play_sfx("terminal_type", -6.0, 0.1)
+				FX.pop_text(global_position + Vector2(0, -22), q["text"], Color("c77dff"), 8)
+			else:
+				AudioDirector.play_sfx("penguin", -6.0, 0.1)
+				FX.pop_text(global_position + Vector2(0, -22), "hmph.", Color("9aa4b2"), 8)
 
 
 func _enter(s: State) -> void:
@@ -229,6 +270,8 @@ func _do_movement(_delta: float) -> void:
 		mult = 0.35
 	if _status.has("port"):
 		mult *= 0.45   # Port Conflict
+	if _overdrive_t > 0.0:
+		mult *= 1.55   # Mono Runtime Overdrive
 	var spd := base_speed + stats.effective_spd() * 3.0
 	velocity = velocity.lerp(dir * spd * mult, 0.35)
 
@@ -255,9 +298,36 @@ func _update_timers(delta: float) -> void:
 		_contact_lock -= delta
 	if _ctrl_lock > 0:
 		_ctrl_lock -= delta
+	if _spawn_t > 0.0:
+		_spawn_t -= delta
+	if _victory_t > 0.0:
+		_victory_t -= delta
+	if GameState.character_id == "miggy" and GameState.ultimate_charge >= 100:
+		_ult_spark_t -= delta
+		if _ult_spark_t <= 0.0:
+			_ult_spark_t = 0.45
+			var spark := FX.spawn_effect("code_frag",
+				global_position + Vector2(randf_range(-12, 12), randf_range(-20, -4)),
+				1.0, 0.7)
+			if spark != null:
+				spark.modulate = Color("f7e94b")
+	if _overdrive_t > 0.0:
+		_overdrive_t -= delta
+		_update_afterimages(delta)
+		if _overdrive_t <= 0.0 and _aura_fx != null and is_instance_valid(_aura_fx):
+			_aura_fx.queue_free()
+			_aura_fx = null
+	if _shield_t > 0.0:
+		_shield_t -= delta
+		if _status.has("shield"):
+			_status["shield"]["t"] = _shield_t
+		if _shield_t <= 0.0:
+			_expire_shield()
+	var cd_mult := 2.0 if _overdrive_t > 0.0 else 1.0
 	for k in _cooldowns.keys():
-		_cooldowns[k] = maxf(0.0, _cooldowns[k] - delta)
+		_cooldowns[k] = maxf(0.0, _cooldowns[k] - delta * cd_mult)
 		EventBus.ability_cooldown.emit(k, _cooldowns[k])
+	sprite.speed_scale = 1.35 if _overdrive_t > 0.0 else 1.0
 	# energy regen from INT
 	if state != State.DEAD:
 		GameState.regenerate_energy((3.0 + stats.intel * 0.4) * delta)
@@ -293,7 +363,11 @@ func _update_anim_selection() -> void:
 		return
 	var moving := velocity.length() > 8.0
 	var target := "idle"
-	if state == State.DODGE:
+	if _victory_t > 0.0:
+		target = "victory"
+	elif _spawn_t > 0.0:
+		target = "spawn"
+	elif state == State.DODGE:
 		target = "dodge"
 	elif state == State.HURT:
 		target = "hurt"
@@ -365,9 +439,10 @@ func _try_attack() -> void:
 	_hit_registered = false
 	_crit = randf() < CombatMath.crit_chance(stats.effective_luck())
 	_enter(State.ATTACK)
-	_attack_timer = 0.28
+	_attack_timer = 0.28 / _attack_speed()
 	AudioDirector.play_sfx("slash")
-	FX.slash_arc(global_position + facing * 13.0 + Vector2(0, 2), facing)
+	var slash_tint := Color("c77dff") if GameState.character_id == "miggy" else Color.WHITE
+	FX.slash_arc(global_position + facing * 13.0 + Vector2(0, 2), facing, slash_tint)
 
 
 func _try_ranged() -> void:
@@ -375,32 +450,39 @@ func _try_ranged() -> void:
 		return
 	if _cooldowns.get("ranged", 0.0) > 0.0:
 		return
-	_cooldowns["ranged"] = 0.45
+	_cooldowns["ranged"] = 0.45 / _attack_speed()
 	_enter(State.RANGED)
-	_attack_timer = 0.22
+	_attack_timer = 0.22 / _attack_speed()
 	var dmg := stats.effective_atk()
 	if randf() < CombatMath.crit_chance(stats.effective_luck()):
 		dmg *= 2
-	FX.shoot("disc", global_position + facing * 10, facing, dmg, "player", 150.0, 60.0, false, "", 0, false, 1.5)
+	if GameState.character_id == "miggy":
+		FX.shoot("code_frag", global_position + facing * 10, facing, dmg, "player",
+			190.0, 60.0, false, "", 0, false, 1.7)
+		AudioDirector.play_sfx("miggy_shoot")
+	else:
+		FX.shoot("disc", global_position + facing * 10, facing, dmg, "player", 150.0, 60.0, false, "", 0, false, 1.5)
+		AudioDirector.play_sfx("shoot")
 	FX.spark(global_position + facing * 10)
-	AudioDirector.play_sfx("shoot")
 
 
 func _try_cast() -> void:
 	if _ctrl_lock > 0.0 or state in [State.DODGE, State.HURT, State.DEAD]:
 		return
 	var ab := GameState.selected_ability
-	if ab == "":
+	if ab == "" or ab not in GameState.unlocked_abilities:
 		if GameState.unlocked_abilities.size() > 0:
-			GameState.select_ability(GameState.unlocked_abilities[-1])
-			ab = GameState.selected_ability
+			ab = GameState.unlocked_abilities[-1]
+			GameState.select_ability(ab)
 		else:
 			FX.pop_text(global_position + Vector2(0, -20), "NO ABILITIES! LEVEL UP", Color("e2282e"))
 			return
 	if _cooldowns.get(ab, 0.0) > 0.0:
 		FX.pop_text(global_position + Vector2(0, -20), "COOLDOWN", Color("9aa4b2"))
 		return
-	var def: AbilityResource = AbilityRegistry.defs[ab]
+	var def: AbilityResource = AbilityRegistry.defs.get(ab)
+	if def == null or def.ultimate:
+		return
 	if not GameState.try_spend_energy(def.energy_cost):
 		FX.pop_text(global_position + Vector2(0, -20), "NEED ENERGY", Color("2d6aff"))
 		return
@@ -443,6 +525,249 @@ func _trigger_ability(def: AbilityResource) -> void:
 			AudioDirector.play_sfx("segfault")
 			FX.shoot("shard", global_position + facing * 8, facing,
 				stats.effective_atk() * 3 + stats.intel * 2, "player", 220.0, 120.0, true)
+		"collider":
+			_cast_collider(def)
+		"stun_shield":
+			_cast_gnome_shock(def)
+		"overdrive":
+			_cast_overdrive()
+		"shield":
+			_cast_bonobo()
+		"factory":
+			_cast_factory(def)
+		"dual_wield":
+			_cast_dual_wield(def)
+
+
+func _attack_speed() -> float:
+	return 1.6 if _overdrive_t > 0.0 else 1.0
+
+
+func _enemies_within(radius: float) -> Array[EnemyBase]:
+	var out: Array[EnemyBase] = []
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var eb := e as EnemyBase
+		if eb == null or eb.is_dead():
+			continue
+		if global_position.distance_to(eb.global_position) <= radius:
+			out.append(eb)
+	return out
+
+
+# ---------------------------------------------------------- MIGGY powers ----
+func _cast_collider(def: AbilityResource) -> void:
+	AudioDirector.play_sfx("collider")
+	var center := global_position + facing * 8.0
+	var panels: Array[AnimatedSprite2D] = []
+	for sgn in [-1.0, 1.0]:
+		var panel := FX.spawn_effect("collider_panel", center + Vector2(sgn * 46.0, 0),
+			1.0, 1.2)
+		if panel == null:
+			continue
+		panel.z_index = 9
+		panel.scale = Vector2.ONE * 1.15
+		panels.append(panel)
+		var tw := create_tween()
+		tw.tween_property(panel, "position", center, 0.55) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_interval(0.15)
+		tw.tween_callback(panel.queue_free)
+	for e in _enemies_within(150.0):
+		e.apply_pull(center, 0.55, 220.0)
+	var timer := get_tree().create_timer(0.55)
+	timer.timeout.connect(_collider_explode.bind(center, def))
+
+
+func _collider_explode(center: Vector2, def: AbilityResource) -> void:
+	if not is_inside_tree() or state == State.DEAD:
+		return
+	AudioDirector.play_sfx("boom")
+	FX.spawn_effect("collider_boom", center)
+	EventBus.screen_shake.emit(8.0, 0.35)
+	var dmg := int(stats.effective_atk() * def.power) + stats.effective_int() * 2
+	for e in _enemies_within(86.0):
+		var dir := (e.global_position - center).normalized()
+		e.take_hit(dmg, dir * 240.0, true, "ability")
+
+
+func _cast_gnome_shock(def: AbilityResource) -> void:
+	AudioDirector.play_sfx("gnome_shock")
+	var win := FX.spawn_effect("gnome_windows", global_position + Vector2(-16, -18), 1.0, 1.3)
+	if win != null:
+		win.z_index = 6
+	var wave := FX.spawn_effect("gnome_wave", global_position)
+	if wave != null:
+		wave.z_index = 15
+	EventBus.screen_flash.emit(Color(0.7, 0.9, 1.0, 0.25), 0.2)
+	for e in _enemies_within(140.0):
+		e.stun(2.6)
+		var dir := (e.global_position - global_position).normalized()
+		e.take_hit(int(stats.effective_atk() * def.power), dir * 90.0, false, "ability")
+	_grant_shield(18 + stats.effective_int() * 2, 9.0, 0.0)
+	FX.pop_text(global_position + Vector2(0, -28), "SHELL SHOCK", Color("2de3ff"), 8)
+
+
+func _cast_overdrive() -> void:
+	AudioDirector.play_sfx("mono_overdrive")
+	_overdrive_t = 9.0
+	_ghost_t = 0.0
+	if _aura_fx == null or not is_instance_valid(_aura_fx):
+		_aura_fx = AnimatedSprite2D.new()
+		_aura_fx.sprite_frames = SpriteLib.build("res://assets/effects/mono_aura.png")
+		var names := _aura_fx.sprite_frames.get_animation_names()
+		if names.size() > 0:
+			_aura_fx.animation = names[0]
+			_aura_fx.play()
+		_aura_fx.scale = Vector2(1.55, 1.55)
+		_aura_fx.position = Vector2(0, -4)
+		_aura_fx.z_as_relative = false
+		_aura_fx.z_index = 9
+		add_child(_aura_fx)
+	EventBus.screen_flash.emit(Color(0.5, 0.2, 0.9, 0.3), 0.25)
+	FX.pop_text(global_position + Vector2(0, -28), "MONO OVERDRIVE", Color("c77dff"), 8)
+
+
+func _update_afterimages(delta: float) -> void:
+	_ghost_t -= delta
+	if _ghost_t > 0.0:
+		return
+	_ghost_t = 0.07
+	if sprite == null or sprite.sprite_frames == null:
+		return
+	var tex := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	if tex == null:
+		return
+	var ghost := Sprite2D.new()
+	ghost.texture = tex
+	ghost.flip_h = sprite.flip_h
+	ghost.modulate = Color(0.65, 0.35, 1.0, 0.45)
+	ghost.z_index = 9
+	var fx := get_tree().get_first_node_in_group("effects")
+	if fx != null:
+		fx.add_child(ghost)
+		ghost.global_position = global_position
+	else:
+		add_child(ghost)
+		ghost.position = Vector2.ZERO
+	var tw := ghost.create_tween()
+	tw.tween_property(ghost, "modulate:a", 0.0, 0.3)
+	tw.tween_callback(ghost.queue_free)
+
+
+func _cast_bonobo() -> void:
+	AudioDirector.play_sfx("bonobo_shield")
+	_grant_shield(30 + stats.effective_int() * 2, 9.0, 0.35)
+	var burst := FX.spawn_effect("bonobo_shield", global_position + Vector2(0, -4), 1.0, 1.3)
+	if burst != null:
+		burst.z_index = 8
+	FX.pop_text(global_position + Vector2(0, -28), "BONOBO SHIELD", Color("2de3ff"), 8)
+
+
+func _grant_shield(hp: int, duration: float, reflect_pct: float) -> void:
+	_shield_max = hp
+	_shield_hp = hp
+	_shield_t = duration
+	_reflect_pct = reflect_pct
+	_status["shield"] = {"t": duration}
+	if _shield_fx != null and is_instance_valid(_shield_fx):
+		_shield_fx.queue_free()
+	_shield_fx = AnimatedSprite2D.new()
+	_shield_fx.sprite_frames = SpriteLib.build("res://assets/effects/bonobo_shield.png")
+	var names := _shield_fx.sprite_frames.get_animation_names()
+	if names.size() > 0:
+		_shield_fx.animation = names[0]
+		_shield_fx.play()
+	_shield_fx.scale = Vector2(1.5, 1.5)
+	_shield_fx.position = Vector2(0, -2)
+	_shield_fx.z_as_relative = false
+	_shield_fx.z_index = 9
+	add_child(_shield_fx)
+
+
+func _expire_shield() -> void:
+	_shield_hp = 0
+	_shield_t = 0.0
+	_reflect_pct = 0.0
+	_status.erase("shield")
+	if _shield_fx != null and is_instance_valid(_shield_fx):
+		_shield_fx.queue_free()
+		_shield_fx = null
+
+
+func _absorb_shield(dmg: int) -> int:
+	if _shield_hp <= 0:
+		return dmg
+	var absorbed := mini(_shield_hp, dmg)
+	_shield_hp -= absorbed
+	FX.pop_text(global_position + Vector2(0, -26), "BLOCK %d" % absorbed, Color("2de3ff"), 8)
+	AudioDirector.play_sfx("bonobo_shield", -6.0)
+	if _shield_hp <= 0:
+		_expire_shield()
+	return dmg - absorbed
+
+
+func _cast_factory(def: AbilityResource) -> void:
+	AudioDirector.play_sfx("gobject_factory")
+	var dmg := int(stats.effective_atk() * def.power)
+	for i in 3:
+		var ang := TAU * i / 3.0
+		FX.spawn_helper(global_position + Vector2(cos(ang), sin(ang)) * 16.0,
+			self, dmg, 8.0)
+	FX.pop_text(global_position + Vector2(0, -28), "g_object_new()", Color("c77dff"), 8)
+
+
+func _cast_dual_wield(def: AbilityResource) -> void:
+	AudioDirector.play_sfx("dual_wield")
+	if _dual != null and is_instance_valid(_dual):
+		_dual.queue_free()
+	_dual = DualPanelWield.new()
+	_dual.setup(self, 8.0)
+	add_child(_dual)
+	FX.pop_text(global_position + Vector2(0, -28), "DUAL WIELD", Color("2de3ff"), 8)
+
+
+func play_victory() -> void:
+	if state == State.DEAD:
+		return
+	_victory_t = 2.0
+	_enter(State.FREE)
+	sprite.play("victory")
+	FX.levelup_ring(global_position)
+
+
+func _try_ultimate() -> void:
+	if GameState.character_id != "miggy" or state == State.DEAD or frozen:
+		return
+	if GameState.ultimate_charge < 100:
+		FX.pop_text(global_position + Vector2(0, -24),
+			"ULT %d%%" % GameState.ultimate_charge, Color("9aa4b2"), 8)
+		return
+	if not GameState.try_consume_ultimate():
+		return
+	_enter(State.CAST)
+	_attack_timer = 2.5
+	frozen = true
+	AudioDirector.play_sfx("ultimate_rmrf")
+	Main.play_miggy_ultimate(self)
+
+
+## Called by Main's cinematic when the terminal sequence finishes.
+func apply_ultimate() -> void:
+	frozen = false
+	_enter(State.FREE)
+	EventBus.screen_flash.emit(Color(1, 1, 1, 0.85), 0.45)
+	EventBus.screen_shake.emit(12.0, 0.9)
+	for container in get_tree().get_nodes_in_group("effects"):
+		for c in container.get_children():
+			var pr := c as Projectile
+			if pr != null and pr.owner_kind == "enemy":
+				pr.queue_free()
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if e is CTOTechBoss:
+			e.take_hit(int(e.max_hp * 0.30), Vector2.ZERO, false, "ultimate")
+		elif e is EnemyBase and not e.is_dead():
+			e.take_hit(99999, Vector2.ZERO, true, "ultimate")
+	FX.pop_text(global_position + Vector2(0, -30), "SEGMENTATION FAULT", Color("ff5a5a"), 16)
 
 
 func _try_dodge() -> void:
@@ -496,6 +821,11 @@ func take_damage(raw: int, from_dir := Vector2.ZERO, status := "", coin_steal :=
 		return
 	var def := stats.effective_def() + int(_buff_def)
 	var dmg := CombatMath.enemy_damage(raw, def, GameState.roll_rng())
+	dmg = _absorb_shield(dmg)
+	if dmg <= 0:
+		_iframes = 0.35
+		EventBus.screen_shake.emit(1.5, 0.1)
+		return
 	stats.hp = maxi(0, stats.hp - dmg)
 	_iframes = 0.9
 	EventBus.player_hp_changed.emit(stats.hp, stats.max_hp)
@@ -534,6 +864,9 @@ func take_contact_damage(raw: int, from_dir: Vector2) -> void:
 	_contact_lock = 0.7
 	var def := stats.effective_def() + int(_buff_def)
 	var dmg := CombatMath.enemy_damage(raw, def, GameState.roll_rng())
+	dmg = _absorb_shield(dmg)
+	if dmg <= 0:
+		return
 	stats.hp = maxi(0, stats.hp - dmg)
 	EventBus.player_hp_changed.emit(stats.hp, stats.max_hp)
 	EventBus.player_damaged.emit()
@@ -586,6 +919,17 @@ func active_statuses() -> Array:
 
 func hazard_tick(dmg: int) -> void:
 	take_damage(dmg, Vector2.ZERO, "hazard", 0)
+
+
+## Incoming projectile hook: allows Bonobo's shield to absorb/reflect.
+## Returns 0 = normal hit, 2 = reflected (projectile should flip sides).
+func receive_projectile(dmg: int, from_dir: Vector2, status := "", steal := 0) -> int:
+	if _shield_hp > 0 and _reflect_pct > 0.0 and randf() < _reflect_pct:
+		FX.pop_text(global_position + Vector2(0, -28), "REFLECT", Color("c77dff"), 8)
+		AudioDirector.play_sfx("bonobo_shield", -3.0, 0.2)
+		return 2
+	take_damage(dmg, from_dir, status, steal)
+	return 0
 
 
 func _on_hp_changed(hp: int, _m: int) -> void:

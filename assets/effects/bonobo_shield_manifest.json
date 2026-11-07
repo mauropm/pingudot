@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "bonobo_shield": {
+   "cell": [
+    36,
+    36
+   ],
+   "frames": 4,
+   "fps": 10,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

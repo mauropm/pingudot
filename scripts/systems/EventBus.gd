@@ -22,6 +22,8 @@ signal boss_defeated
 signal boss_phase_started(phase: int)
 signal player_hit_without_damage_during_phase(phase: int)
 signal achievement_unlocked(id: String, display_name: String)
+signal character_unlocked(id: String)
+signal ultimate_charge_changed(value: int, maximum: int)
 signal interact_hint(text: String)
 signal status_effect_applied(effect_id: String, duration: float)
 signal screen_shake(strength: float, duration: float)

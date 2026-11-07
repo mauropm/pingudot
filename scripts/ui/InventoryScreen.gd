@@ -1,10 +1,13 @@
 extends Control
 class_name InventoryScreen
+## Inventory: 6x4 item grid, equipped summary, and a full-width detail strip
+## with the complete item description (no clipping/overflow).
 
 signal close_requested
 
 var _grid: GridContainer
-var _detail: Node
+var _equipped_col: Control
+var _detail_panel: Control
 var _sel: ItemResource = null
 var _slot_btns: Array = []
 
@@ -15,25 +18,37 @@ func _ready() -> void:
 	dim.set_anchors_preset(PRESET_FULL_RECT)
 	add_child(dim)
 	var root := UISkin.make_panel("panel_dark")
-	root.position = Vector2(10, 10)
-	root.size = Vector2(364, 196)
+	root.position = Vector2(8, 8)
+	root.size = Vector2(368, 200)
 	add_child(root)
 	var title := UISkin.label("INVENTORY  [I] CLOSE", 8, Color("2de3ff"))
-	title.position = Vector2(18, 16)
+	title.position = Vector2(16, 12)
 	add_child(title)
 
-	add_child(_at(UISkin.label("ITEMS", 8, Color("f7e94b")), 18, 30))
+	add_child(_at(UISkin.label("ITEMS", 8, Color("f7e94b")), 16, 26))
 	_grid = GridContainer.new()
-	_grid.position = Vector2(18, 42)
+	_grid.position = Vector2(16, 36)
 	_grid.add_theme_constant_override("h_separation", 0)
 	_grid.add_theme_constant_override("v_separation", 0)
-	_grid.columns = 5
+	_grid.columns = 6
 	add_child(_grid)
 
-	add_child(_at(UISkin.label("EQUIPPED", 8, Color("f7e94b")), 178, 30))
-	_detail = Control.new()
-	_detail.position = Vector2(178, 42)
-	add_child(_detail)
+	add_child(_at(UISkin.label("EQUIPPED", 8, Color("f7e94b")), 198, 26))
+	_equipped_col = Control.new()
+	_equipped_col.position = Vector2(198, 36)
+	add_child(_equipped_col)
+
+	# full-width detail strip for the selected item
+	var divider := ColorRect.new()
+	divider.color = Color("3a4aa8")
+	divider.position = Vector2(16, 148)
+	divider.size = Vector2(352, 1)
+	add_child(divider)
+	_detail_panel = Control.new()
+	_detail_panel.name = "DetailPanel"
+	_detail_panel.position = Vector2(16, 150)
+	add_child(_detail_panel)
+
 	_refresh()
 	_first_focus()
 
@@ -43,13 +58,19 @@ func _at(n: Control, x: float, y: float) -> Control:
 	return n
 
 
-func _refresh() -> void:
-	for c in _grid.get_children():
+func _clear_children(node: Node) -> void:
+	# remove immediately (queue_free is deferred and would overlap/rename)
+	for c in node.get_children():
+		node.remove_child(c)
 		c.queue_free()
+
+
+func _refresh() -> void:
+	_clear_children(_grid)
 	_slot_btns.clear()
 	for i in GameState.INVENTORY_CAP:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(30, 30)
+		b.custom_minimum_size = Vector2(26, 26)
 		if i < GameState.inventory.size():
 			var item: ItemResource = GameState.inventory[i]
 			b.icon = item.icon
@@ -74,22 +95,12 @@ func _first_focus() -> void:
 func _select(item: ItemResource) -> void:
 	_sel = item
 	AudioDirector.play_sfx("ui_move")
-	_reredraw()
-
-
-func _reredraw() -> void:
 	_redraw_equipped()
 	_render_detail()
-	# keep focus on a real slot
-	for b in _slot_btns:
-		if not b.disabled:
-			b.grab_focus()
-			break
 
 
 func _redraw_equipped() -> void:
-	for c in _detail.get_children():
-		c.queue_free()
+	_clear_children(_equipped_col)
 	var rows: Array = []
 	for s in ["weapon", "armor", "boots"]:
 		var it: ItemResource = GameState.equipment[s]
@@ -106,74 +117,99 @@ func _redraw_equipped() -> void:
 	for r in rows:
 		var rar_col: Color = ItemResource.RARITY_COLORS.get(r[2], Color("f2f2f2"))
 		var txt: String = str(r[1])
-		if txt.length() > 22:
-			txt = txt.substr(0, 21) + "."
+		if txt.length() > 25:
+			txt = txt.substr(0, 24) + "."
 		var lbl := UISkin.label("%s %s" % [r[0], txt], 8, rar_col)
 		lbl.position = Vector2(0, y)
-		_detail.add_child(lbl)
+		_equipped_col.add_child(lbl)
 		y += 10.0
+	var hint := UISkin.label("ARROWS/SELECT  ENTER", 6, Color("5a6280"))
+	hint.position = Vector2(0, y + 6)
+	_equipped_col.add_child(hint)
 
 
 func _render_detail() -> void:
-	if has_node("DetailPanel"):
-		var old := get_node("DetailPanel")
-		old.queue_free()
-	var dp := Control.new()
-	dp.name = "DetailPanel"
-	dp.position = Vector2(18, 196)
-	add_child(dp)
-	# note: positioned over the lower half of the right column via absolute pos
-	dp.position = Vector2(178, 120)
+	_clear_children(_detail_panel)
+	var dp := _detail_panel
 	if _sel == null:
 		var l := UISkin.label("Select an item.", 8, Color("9aa4b2"))
 		l.position = Vector2(0, 2)
 		dp.add_child(l)
 		return
 	var col: Color = ItemResource.RARITY_COLORS[_sel.rarity]
+	# Row 1: name (left, clipped before the action button).
 	var name_l := UISkin.label(_sel.display_name.substr(0, 30), 8, col)
 	name_l.position = Vector2(0, 0)
+	name_l.size = Vector2(240, 10)
+	name_l.clip_text = true
 	dp.add_child(name_l)
-	var rar := UISkin.label(_sel.rarity.to_upper(), 8, col.darkened(0.2))
+	# Row 2: rarity (left) followed by the compact stat summary on the same line.
+	var rar := UISkin.label(_sel.rarity.to_upper(), 8, col.darkened(0.15))
 	rar.position = Vector2(0, 10)
+	rar.size = Vector2(76, 10)
+	rar.clip_text = true
 	dp.add_child(rar)
-	var desc_txt: String = _sel.description
-	if desc_txt.length() > 62:
-		desc_txt = desc_txt.substr(0, 61) + "."
-	var desc := UISkin.label(desc_txt, 8, Color("f2f2f2"))
-	desc.position = Vector2(0, 22)
-	desc.size = Vector2(188, 20)
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dp.add_child(desc)
-	var y := 44.0
-	var shown := 0
+	var stats_line := _stat_summary()
+	if stats_line != "":
+		var st := UISkin.label(stats_line, 8, Color("6ec72c"))
+		st.position = Vector2(80, 10)
+		st.size = Vector2(164, 10)
+		st.clip_text = true
+		dp.add_child(st)
+	# Row 3+: full description, manually wrapped so it can never overflow the panel.
+	var lines := _wrap_text(_sel.description, 43)
+	for i in mini(lines.size(), 3):
+		var dl := UISkin.label(lines[i], 8, Color("f2f2f2"))
+		dl.position = Vector2(0, 20 + i * 11)
+		dl.size = Vector2(352, 10)
+		dl.clip_text = true
+		dp.add_child(dl)
+	if _sel.is_equippable():
+		_act_button(dp, "EQUIP [ENTER]", Vector2(248, 0), _do_equip)
+	elif _sel.slot == "consumable":
+		_act_button(dp, "USE [ENTER]", Vector2(248, 0), _do_use)
+	elif _sel.slot == "material":
+		var m := UISkin.label("MATERIAL", 8, Color("9aa4b2"))
+		m.position = Vector2(248, 2)
+		dp.add_child(m)
+
+
+func _stat_summary() -> String:
+	if _sel == null:
+		return ""
+	var parts: Array[String] = []
 	for k in _sel.mods.keys():
-		if shown >= 2:
-			var more := UISkin.label("...", 8, Color("9aa4b2"))
-			more.position = Vector2(0, y)
-			dp.add_child(more)
+		if parts.size() >= 3:
+			parts.append("+more")
 			break
 		var v = _sel.mods[k]
-		var line: String
 		if v is int and k in ["atk", "def", "spd", "int", "luck", "crit_pct", "hp"]:
-			line = "%s %+d" % [_mod_label(k), int(v)]
+			var chunk := "%s %+d" % [_mod_label(k), int(v)]
 			var cur = _current_mod_for(k)
 			if cur != null:
-				var delta := int(v) - int(cur)
-				line += "  (%+d)" % delta
+				chunk += "(%+d)" % (int(v) - int(cur))
+			parts.append(chunk)
 		elif k in ["hp_heal", "en_gain", "clear_cd"]:
-			line = "%s %s" % [k.to_upper().replace("_", " "), str(v)]
+			var label := "HEAL" if k == "hp_heal" else ("ENERGY" if k == "en_gain" else "RESET CD")
+			parts.append("%s %s" % [label, str(v)])
+	return " ".join(parts)
+
+
+## Greedy word wrap. Descriptions are short (<=60 chars) so at most 3 lines.
+func _wrap_text(text: String, max_chars: int) -> Array[String]:
+	var out: Array[String] = []
+	var cur := ""
+	for word in text.split(" ", false):
+		if cur == "":
+			cur = word
+		elif cur.length() + 1 + word.length() <= max_chars:
+			cur += " " + word
 		else:
-			line = String(k).to_upper()
-		var c2 := Color("6ec72c") if (v is int and int(v) > 0) else Color("e2282e")
-		var l2 := UISkin.label(line, 8, c2)
-		l2.position = Vector2(0, y)
-		dp.add_child(l2)
-		y += 10.0
-		shown += 1
-	if _sel.is_equippable():
-		_act_button(dp, "EQUIP [ENTER]", Vector2(0, 68), _do_equip)
-	elif _sel.slot == "consumable":
-		_act_button(dp, "USE [ENTER]", Vector2(0, 68), _do_use)
+			out.append(cur)
+			cur = word
+	if cur != "":
+		out.append(cur)
+	return out
 
 
 func _mod_label(k: String) -> String:

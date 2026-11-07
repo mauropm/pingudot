@@ -90,6 +90,12 @@ func save_profile(achievements: Dictionary, unlocks: Dictionary) -> bool:
 	return _write_json(PROFILE_PATH, {"magic": MAGIC, "achievements": achievements, "unlocks": unlocks})
 
 
+func delete_profile() -> void:
+	for p in [PROFILE_PATH, PROFILE_PATH + ".bak"]:
+		if FileAccess.file_exists(p):
+			DirAccess.remove_absolute(p)
+
+
 func load_profile() -> Dictionary:
 	var d := _read_json(PROFILE_PATH)
 	if d.is_empty():

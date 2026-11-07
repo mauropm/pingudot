@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "collider_panel": {
+   "cell": [
+    34,
+    40
+   ],
+   "frames": 2,
+   "fps": 6,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

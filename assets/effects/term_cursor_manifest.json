@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "term_cursor": {
+   "cell": [
+    8,
+    10
+   ],
+   "frames": 1,
+   "fps": 2,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

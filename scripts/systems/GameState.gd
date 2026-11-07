@@ -23,29 +23,89 @@ var counters := {"patches": 0, "kills": {}, "hidden_found": 0, "area_reached": 0
 var started := false
 var mission_complete := false
 var equipment_disabled := false    # GPL Hipster license-violation debuff
+var character_id := "pingu"
+var ultimate_charge := 0
+var unlocked_characters := {"pingu": true}
 
 
 func _ready() -> void:
-	reset_run(0)
+	_load_unlocks()
+	reset_run(0, "pingu")
 
 
-func reset_run(sd: int) -> void:
+func _load_unlocks() -> void:
+	var profile := SaveSystem.load_profile()
+	var u: Dictionary = profile.get("unlocks", {})
+	unlocked_characters = {"pingu": true, "miggy": bool(u.get("miggy", false))}
+
+
+func is_character_unlocked(id: String) -> bool:
+	return bool(unlocked_characters.get(id, false))
+
+
+func unlock_character(id: String) -> void:
+	unlocked_characters[id] = true
+	var unlocks := {}
+	for cid in unlocked_characters:
+		if bool(unlocked_characters[cid]):
+			unlocks[cid] = true
+	SaveSystem.save_profile(AchievementManager.unlocked, unlocks)
+	EventBus.character_unlocked.emit(id)
+
+
+func character_def() -> CharacterDefinition:
+	return CharacterRegistry.get_def(character_id)
+
+
+func ability_ids() -> Array[String]:
+	return character_def().abilities
+
+
+func ultimate_id() -> String:
+	return character_def().ultimate_id
+
+
+func has_ultimate() -> bool:
+	return ultimate_id() != ""
+
+
+func reset_run(sd: int, character := "pingu") -> void:
 	if sd == 0:
 		seed_value = int(Time.get_unix_time_from_system()) ^ randi()
 	else:
 		seed_value = sd
+	if not CharacterRegistry.has(character):
+		character = "pingu"
+	character_id = character
+	var cdef := CharacterRegistry.get_def(character)
 	rng = RandomNumberGenerator.new()
 	rng.seed = seed_value
 	inventory.clear()
 	equipment = {"weapon": null, "armor": null, "boots": null, "hardware": []}
 	stats = CharacterStats.new()
+	var cs: Dictionary = cdef.stats
+	stats.max_hp = int(cs.get("hp", 45))
+	stats.base_max_hp = stats.max_hp
+	stats.max_en = int(cs.get("en", 30))
+	stats.atk = int(cs.get("atk", 6))
+	stats.def_ = int(cs.get("def", 3))
+	stats.spd = int(cs.get("spd", 4))
+	stats.intel = int(cs.get("int", 4))
+	stats.luck = int(cs.get("luck", 2))
+	stats.level = 1
+	stats.xp = 0
 	stats.hp = stats.max_hp
 	stats.en = stats.max_en
 	_recalc_max_hp()
 	stats.hp = stats.max_hp
 	coins = 0
+	ultimate_charge = 0
 	unlocked_abilities.clear()
-	selected_ability = ""
+	for id in cdef.abilities:
+		var a: AbilityResource = AbilityRegistry.defs.get(id)
+		if a != null and a.unlock_level <= 1:
+			unlocked_abilities.append(id)
+	selected_ability = unlocked_abilities[0] if unlocked_abilities.size() > 0 else ""
 	area_index = 0
 	checkpoint = {"area": 0, "x": 2, "y": 2}
 	counters = {"patches": 0, "kills": {}, "hidden_found": 0, "area_reached": 0,
@@ -81,20 +141,39 @@ func gain_xp(amount: int) -> void:
 
 
 func _check_ability_unlocks() -> void:
-	for id in AbilityRegistry.list_ids():
-		var a: AbilityResource = AbilityRegistry.defs[id]
+	for id in ability_ids():
+		var a: AbilityResource = AbilityRegistry.defs.get(id)
+		if a == null or a.ultimate:
+			continue
 		if a.unlock_level <= stats.level and id not in unlocked_abilities:
 			unlocked_abilities.append(id)
 			if selected_ability == "":
 				select_ability(id)
 			EventBus.ability_unlocked.emit(id)
-			AchievementManager.on_abilities_full()
+	if character_id == "pingu" and unlocked_abilities.size() >= 4:
+		AchievementManager.on_abilities_full()
 
 
 func select_ability(id: String) -> void:
 	if id in unlocked_abilities:
 		selected_ability = id
 		EventBus.ability_used.emit(id)
+
+
+# --------------------------------------------------------------- ultimate ----
+func add_ultimate_charge(amount: int) -> void:
+	if not has_ultimate():
+		return
+	ultimate_charge = clampi(ultimate_charge + amount, 0, 100)
+	EventBus.ultimate_charge_changed.emit(ultimate_charge, 100)
+
+
+func try_consume_ultimate() -> bool:
+	if not has_ultimate() or ultimate_charge < 100:
+		return false
+	ultimate_charge = 0
+	EventBus.ultimate_charge_changed.emit(0, 100)
+	return true
 
 
 # --------------------------------------------------------------- energy ----
@@ -272,6 +351,7 @@ func build_save_dict() -> Dictionary:
 	eq["hardware"] = hw
 	return {
 		"seed": seed_value, "area": area_index, "coins": coins,
+		"character": character_id, "ultimate": ultimate_charge,
 		"stats": {
 			"max_hp": stats.max_hp, "hp": stats.hp, "max_en": stats.max_en, "en": stats.en,
 			"atk": stats.atk, "def": stats.def_, "spd": stats.spd, "int": stats.intel,
@@ -301,7 +381,8 @@ func _item_from_dict(d: Dictionary) -> ItemResource:
 func apply_save_dict(d: Dictionary) -> bool:
 	if d.is_empty():
 		return false
-	reset_run(int(d.get("seed", 0)))
+	reset_run(int(d.get("seed", 0)), String(d.get("character", "pingu")))
+	ultimate_charge = int(d.get("ultimate", 0))
 	stats.max_hp = int(d["stats"].get("max_hp", 45))
 	stats.hp = int(d["stats"].get("hp", stats.max_hp))
 	stats.max_en = int(d["stats"].get("max_en", 30))

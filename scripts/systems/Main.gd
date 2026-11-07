@@ -15,6 +15,7 @@ const INTRO_SCENE := preload("res://scenes/cinematics/IntroCinematic.tscn")
 const ENDING_SCENE := preload("res://scenes/cinematics/EndingCinematic.tscn")
 const CREDITS_SCENE := preload("res://scenes/cinematics/CreditsScreen.tscn")
 const LEVEL_SCENE := preload("res://scenes/levels/Level.tscn")
+const MIGGY_ULTIMATE_SCENE := preload("res://scenes/cinematics/MiggyUltimate.tscn")
 const HUD_SCENE := preload("res://scenes/ui/HUD.tscn")
 const DIALOGUE_SCENE := preload("res://scenes/ui/DialogueBox.tscn")
 
@@ -25,6 +26,7 @@ var hud: HUD
 var dialogue_box: DialogueBox
 var modal: Control = null
 var _intro_after := ""
+var _ultimate_active := false
 
 
 func _ready() -> void:
@@ -106,18 +108,52 @@ func show_menu() -> void:
 
 
 # ----------------------------------------------------------------- new game ----
-func start_new_game(seed_override := 0) -> void:
-	GameState.reset_run(seed_override)
+func start_new_game(seed_override := 0, character := "pingu") -> void:
+	GameState.reset_run(seed_override, character)
 	GameState.started = true
 	# Starter kit
-	var kit := ItemRegistry.consumable("heal_small", 2)
-	GameState.add_item(kit)
+	GameState.add_item(ItemRegistry.consumable("heal_small", 2))
 	GameState.add_item(ItemRegistry.consumable("en_small", 1))
-	var weapon := ItemRegistry.consumable("fish_frozen", 1)
-	if weapon != null:
-		GameState.equip(weapon)
+	var start_item := GameState.character_def().start_item
+	if start_item != "":
+		var weapon := ItemRegistry.consumable(start_item, 1)
+		if weapon != null:
+			GameState.equip(weapon)
 	GameState.stats.en = GameState.stats.max_en
-	show_intro()
+	if character == "miggy":
+		AudioDirector.play_sfx("miggy_spawn")
+		begin_mission()
+	else:
+		show_intro()
+
+
+func start_miggy_run(seed_override := 0) -> void:
+	start_new_game(seed_override, "miggy")
+
+
+func play_miggy_ultimate(player: Player) -> void:
+	if _ultimate_active:
+		return
+	_ultimate_active = true
+	get_tree().paused = true
+	var cin := MIGGY_ULTIMATE_SCENE.instantiate()
+	cin.theme = UISkin.theme()
+	cin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cin.process_mode = Node.PROCESS_MODE_ALWAYS
+	cin.finished.connect(func():
+		get_tree().paused = false
+		_ultimate_active = false
+		if is_instance_valid(player):
+			player.apply_ultimate()
+		if modal == cin:
+			modal = null
+		cin.queue_free())
+	overlay.add_child(cin)
+	modal = cin
+	cin.tree_exited.connect(func():
+		if _ultimate_active:
+			_ultimate_active = false
+			get_tree().paused = false)
 
 
 func show_intro() -> void:
@@ -243,6 +279,14 @@ func close_modal() -> void:
 		modal.queue_free()
 	modal = null
 	get_tree().paused = false
+	# Closing a menu modal frees the focused control, so give focus back to the
+	# title screen; otherwise arrow keys/Enter stop working until the player
+	# clicks something.
+	if screen == Screen.MENU:
+		for c in overlay.get_children():
+			if c is MainMenuScreen and is_instance_valid(c):
+				c.focus_menu()
+				break
 
 
 # ------------------------------------------------------------------- ending ----
@@ -276,6 +320,8 @@ func show_credits() -> void:
 
 # ------------------------------------------------------------------- input ----
 func _unhandled_input(event: InputEvent) -> void:
+	if _ultimate_active:
+		return
 	if screen != Screen.GAME:
 		return
 	if dialogue_box.visible and dialogue_box.has_method("consume_key"):
