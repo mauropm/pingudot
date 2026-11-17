@@ -5,6 +5,10 @@ config_version=5
 
 [application]
 
+boot_splash/image="res://fortuna.png"
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/stretch_mode=5
+boot_splash/minimum_display_time=3000
 config/name="PINGUDOT"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
