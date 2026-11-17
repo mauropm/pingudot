@@ -172,7 +172,9 @@ Key design decisions:
   playable characters (stats, ability sets, atlas, starter item). The Player,
   HUD and save system are character-agnostic; the default is Pingu. A
   developer-facing design/QA document for the hidden character lives in
-  `MIGGY_EASTER_EGG.md`.
+  `MIGGY_EASTER_EGG.md`. The victory flow is character-aware: Pingu gets the
+  Puerto Escondido sunset, MIGGY gets the winter hacker apartment
+  (`ENDINGS.md`).
 
 ## Asset production note
 
@@ -228,8 +230,13 @@ godot --headless --path . res://tests/Inventory.tscn
 # 3g) Settings layout (mute toggle must not overlap the save buttons)
 godot --headless --path . res://tests/Settings.tscn
 
+# 3h) Character-specific endings (Pingu beach / Miggy winter; see ENDINGS.md)
+godot --headless --path . res://tests/Endings.tscn
+
 # 4) Visual capture (opens a window, writes PNGs to /tmp/pingudot_shots)
 godot --path . res://tests/VisualCheck.tscn
+#    Ending screenshots -> /tmp/pingudot_endings
+godot --path . res://tests/EndingsVisual.tscn
 ```
 
 The unit suite covers damage math, XP curves, stat aggregation, inventory

@@ -214,8 +214,9 @@ Manual QA:
 
 ## 7. Known limitations
 
-- MIGGY shares the existing mission, areas, loot and ending cinematic (the
-  ending uses his atlas for the runner) — no bespoke campaign.
+- MIGGY shares the existing mission, areas and loot — no bespoke campaign —
+  but he has his own ending cinematic ("The Hacker's Winter") instead of
+  Pingu's Puerto Escondido epilogue. See `ENDINGS.md`.
 - The ultimate is intentionally a spectacular screen-clear with a boss cap; it
   is not a guaranteed boss kill.
 - No gamepad-specific secret input (keyboard only), consistent with the rest of
