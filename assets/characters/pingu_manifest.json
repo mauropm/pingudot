@@ -150,6 +150,26 @@
    "loop": false,
    "row_y": 448
   },
+  "sit": {
+   "cell": [
+    24,
+    32
+   ],
+   "frames": 6,
+   "fps": 4,
+   "loop": true,
+   "row_y": 480
+  },
+  "sit_idle": {
+   "cell": [
+    24,
+    32
+   ],
+   "frames": 2,
+   "fps": 3,
+   "loop": true,
+   "row_y": 512
+  },
   "portrait": {
    "cell": [
     24,
@@ -158,7 +178,7 @@
    "frames": 1,
    "fps": 1,
    "loop": false,
-   "row_y": 480
+   "row_y": 544
   }
  }
 }

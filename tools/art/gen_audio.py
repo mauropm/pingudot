@@ -132,6 +132,14 @@ def sfx():
     s["paywall"] = padsum(tone(880, 0.07, "square", 0.35), tone(740, 0.07, "square", 0.35), tone(622, 0.12, "square", 0.35))
     s["engine"] = padsum(noise_burst(1.0, 0.4, lp=300), tone(70, 1.0, "square", 0.3, duty=0.3))
     s["achievement"] = seq([72, 76, 79, 84, 88], "tri", 0.4, step=0.07)
+    # ---- ending ambience / foley ---------------------------------------------
+    s["bird"] = padsum(slide(2200, 3100, 0.09, "sine", 0.28),
+                       slide(2600, 1900, 0.11, "sine", 0.22),
+                       slide(2300, 3200, 0.07, "sine", 0.18))
+    s["key_clack"] = padsum(noise_burst(0.025, 0.3, lp=5200),
+                            tone(1200, 0.02, "square", 0.16, duty=0.2))
+    s["terminal_alert"] = padsum(tone(880, 0.07, "tri", 0.3),
+                                 tone(1174, 0.12, "tri", 0.28))
     # ---- MIGGY / secret character -------------------------------------------
     s["terminal_type"] = padsum(tone(1400, 0.025, "square", 0.25, decay=0.02),
                                 tone(900, 0.015, "square", 0.15))
@@ -344,6 +352,20 @@ def music():
                pad_vol=0.08, vib=0.2,
                sections=[(0, 0.5), (3, 0.5), (0, 0.5), (-2, 0.5)])
 
+    # -- MIGGY ending: cold, spacious, electronic --------------------------------
+    mel = [52, None, 55, None, 59, None, 64, None, 62, None, 59, None, 55, None, 52, None,
+           50, None, 53, None, 57, None, 62, None, 64, None, 62, None, 59, None, 55, None]
+    counter = [40, None, None, None, 40, None, None, None, 38, None, None, None,
+               38, None, None, None] * 2
+    make_track("assets/audio/music/ending_miggy.wav", 84, mel,
+               [28, None, 28, None, 35, None, 35, None, 26, None, 26, None,
+                33, None, 33, None] * 2,
+               "k.......s.......k.......s.......",
+               chords=[[52, 55, 59], [50, 53, 57], [48, 52, 55], [47, 50, 55]] * 2,
+               lead="tri", lead_vol=0.34, bass_vol=0.34, drum_vol=0.05,
+               pad_vol=0.06, vib=0.12, counter=counter, counter_kind="sine",
+               counter_vol=0.10, sections=[(0, 0.35), (-2, 0.3), (0, 0.35), (-4, 0.28)])
+
     # -- credits: mellow loop ------------------------------------------------------
     mel = [60, 64, 67, 72, 71, 67, 64, 60, 57, 60, 64, 69, 67, 64, 60, 57,
            60, 64, 67, 72, 74, 72, 67, 64, 62, 60, 64, 67, 64, 60, 57, None]
@@ -359,6 +381,61 @@ def music():
     print("music done")
 
 
+def ambient():
+    """Seamless 8-second ambience beds used by the two cinematic endings."""
+    import numpy as np
+    dur = 8.0
+    n = int(SR * dur)
+    t = np.arange(n) / SR
+    rng = np.random.RandomState(19)
+
+    def lowpass(x, hz):
+        k = max(3, int(SR / hz * 2)) | 1
+        kernel = np.hanning(k)
+        kernel /= kernel.sum()
+        return np.convolve(x, kernel, mode="same")
+
+    def loop_fade(x):
+        nf = int(SR * 0.25)
+        x[:nf] *= np.linspace(0, 1, nf)
+        x[-nf:] *= np.linspace(1, 0, nf)
+        return x
+
+    # -- Puerto Escondido: surf + wind + a few distant birds -------------------
+    surf = lowpass(rng.uniform(-1, 1, n), 380)
+    swell = 0.55 + 0.45 * np.sin(2 * np.pi * t / 4.0) ** 2
+    surf *= swell * 0.30
+    wash = lowpass(rng.uniform(-1, 1, n), 1400) * (0.12 + 0.06 * np.sin(2 * np.pi * t / 6.3))
+    wind = lowpass(rng.uniform(-1, 1, n), 900) * 0.10
+    birds = np.zeros(n)
+    for at in (1.2, 3.9, 6.1):
+        i = int(at * SR)
+        chirp = seq([84, 88, 86], "sine", 0.10, step=0.07)
+        birds[i:i + len(chirp)] += chirp[:max(0, n - i)]
+    out = surf + wash + wind + birds
+    w("assets/audio/ambient/beach.wav", loop_fade(out))
+
+    # -- winter apartment: wind outside + fan hum ------------------------------
+    wind = lowpass(rng.uniform(-1, 1, n), 260)
+    gust = 0.5 + 0.5 * np.sin(2 * np.pi * t / 5.0 + 0.7)
+    wind *= (0.16 + 0.10 * gust)
+    fan = (0.030 * np.sin(2 * np.pi * 58 * t) +
+           0.018 * np.sin(2 * np.pi * 116 * t) +
+           0.010 * np.sin(2 * np.pi * 232 * t))
+    hiss = lowpass(rng.uniform(-1, 1, n), 2400) * 0.028
+    keys = np.zeros(n)
+    for k in range(26):
+        i = int((0.4 + k * 0.27) * SR)
+        if i >= n - 400:
+            break
+        clk = noise_burst(0.02, 0.05, lp=6000)
+        keys[i:i + len(clk)] += clk[:max(0, n - i)]
+    out = wind + fan + hiss + keys
+    w("assets/audio/ambient/winter.wav", loop_fade(out))
+    print("ambient done")
+
+
 if __name__ == "__main__":
     sfx()
     music()
+    ambient()

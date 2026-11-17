@@ -63,16 +63,15 @@ func _ready() -> void:
 		await frames(20)
 		b.take_hit(int(b.max_hp * 0.3), Vector2.ZERO, false, "test")
 	await _shot("08b_boss_p3", 30)
-	# ending
+	# character-specific ending (Pingu run -> Puerto Escondido)
 	Main.close_modal()
 	Main.start_ending()
-	await frames(40)
-	await _shot("09_ending_runway", 30)
-	var e = Main.modal
-	if e != null:
-		e._stage = 5
-		e._t = 6.4
-		await _shot("09b_ending_final", 30)
+	await get_tree().create_timer(2.0).timeout
+	await _shot("09_ending_arrival", 5)
+	await get_tree().create_timer(5.0).timeout
+	await _shot("09b_ending_sunset", 5)
+	await get_tree().create_timer(8.0).timeout
+	await _shot("09c_ending_night", 5)
 	Main.show_credits()
 	await frames(5)
 	var c = Main.modal

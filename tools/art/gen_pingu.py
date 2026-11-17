@@ -247,6 +247,39 @@ def build():
         finish(draw_front({"point": True, "eye": "angry", "bob": -1})),
     ], 6, False)
 
+    # ---- seated, watching the ocean (beach ending) --------------------------
+    def draw_sit(pose):
+        cv = new_frame()
+        cx = 12 + pose.get("lean", 0)
+        bob = pose.get("bob", 0)
+        # feet poke out in front of the seated body
+        cv.ellipse(cx - 4, 29 + bob, 3, 1, FEET)
+        cv.ellipse(cx + 4, 29 + bob, 3, 1, FEET)
+        # body, low and round
+        cv.ellipse(cx, 23 + bob, 8, 8, BODY)
+        # backpack seen from behind
+        cv.rect(cx - 5, 16 + bob, 10, 10, PACK)
+        cv.rect(cx - 5, 16 + bob, 10, 2, PACK_D)
+        cv.frame_rect(cx - 5, 16 + bob, 10, 10, PACK_D)
+        cv.rect(cx - 1, 20 + bob, 2, 2, C("#f7e94b"))
+        # wings resting at the sides
+        cv.ellipse(cx - 9, 23 + bob, 2, 5, BODY)
+        cv.ellipse(cx + 9, 23 + bob, 2, 5, BODY)
+        # head from behind, fluffy
+        hy = 9 + bob
+        cv.ellipse(cx, hy, 5, 5, BODY)
+        cv.rect(cx - 5, hy - 4, 1, 2, BODY2)
+        cv.rect(cx + 4, hy - 4, 1, 2, BODY2)
+        cv.rect(cx - 2, hy - 6, 4, 1, BODY2)
+        cv.rect(cx - 1, hy - 6, 2, 1, C("#2f2f42"))
+        return cv
+
+    emit("sit", [finish(draw_sit(p)) for p in [
+        {"bob": 0}, {"bob": 1}, {"bob": 1, "lean": -1}, {"bob": 0, "lean": 1},
+        {"bob": 0}, {"bob": 1, "lean": -1},
+    ]], 4, True)
+    emit("sit_idle", [finish(draw_sit({"bob": 0})), finish(draw_sit({"bob": 1}))], 3, True)
+
     # ---- HUD portrait -------------------------------------------------------
     por = Canvas(24, 24)
     por.ellipse(12, 13, 10, 10, BODY)

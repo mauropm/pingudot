@@ -14,11 +14,12 @@ const SFX_NAMES := [
 	"boss_die", "victory", "ocean", "glitch", "paywall", "engine", "achievement",
 	"terminal_type", "miggy_unlock", "miggy_spawn", "miggy_shoot", "collider",
 	"gnome_shock", "mono_overdrive", "bonobo_shield", "gobject_factory",
-	"dual_wield", "ultimate_rmrf", "miggy_ult",
+	"dual_wield", "ultimate_rmrf", "miggy_ult", "bird", "key_clack",
+	"terminal_alert",
 ]
 const MUSIC_NAMES := [
 	"menu", "area1", "area2", "area3", "area4", "area5", "boss", "ending",
-	"credits", "gameover",
+	"ending_miggy", "credits", "gameover",
 ]
 const NON_LOOPING := ["gameover"]
 

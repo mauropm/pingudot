@@ -1,0 +1,14 @@
+{
+ "anims": {
+  "screen": {
+   "cell": [
+    44,
+    34
+   ],
+   "frames": 4,
+   "fps": 4,
+   "loop": true,
+   "row_y": 0
+  }
+ }
+}

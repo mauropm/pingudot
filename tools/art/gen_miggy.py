@@ -230,6 +230,94 @@ def build():
     add("walk_back", [draw_back({"legL": -2, "bob": 0}), draw_back({"legL": 0, "bob": -1}),
                       draw_back({"legL": 2, "bob": 0}), draw_back({"legL": 0, "bob": 1})], 10, True)
 
+    # ---- seated at the workstation (winter ending) --------------------------
+    def draw_sit(p):
+        cv = Canvas(40, 36)
+        cx = 18
+        bob = p.get("bob", 0)
+        lean = p.get("lean", 0)
+        handL = p.get("handL", 0)
+        handR = p.get("handR", 0)
+        eye = p.get("eye", "cool")
+        relaxed = p.get("relaxed", False)
+        # legs tucked under the desk (mostly hidden by the desk front)
+        cv.rect(cx + 2, 27 + bob, 12, 3, JEANS)
+        cv.rect(cx + 11, 29 + bob, 3, 6, JEANS)
+        cv.rect(cx + 10, 34 + bob, 5, 2, SHOE)
+        # torso
+        ty = 14 + bob + (lean if relaxed else 0)
+        tcx = cx + lean
+        cv.rect(tcx - 5, ty, 10, 12, SHIRT)
+        cv.rect(tcx - 5, ty, 10, 2, SHIRT_HI)
+        cv.rect(tcx - 5, ty + 11, 10, 1, C("#0c0c12"))
+        # abstract X logo
+        for i in range(3):
+            cv.px(tcx - 2 + i, ty + 4 + i, PURPLE)
+            cv.px(tcx + 1 - i, ty + 4 + i, ORANGE)
+        cv.px(tcx, ty + 6, PURPLE_HI)
+        # lanyard + badge
+        cv.line(tcx - 4, ty, tcx - 1, ty + 3, C("#9aa4b2"))
+        cv.line(tcx + 4, ty, tcx + 1, ty + 3, C("#9aa4b2"))
+        cv.rect(tcx - 1, ty + 3, 3, 2, C("#e8eef8"))
+        # left arm on the lap / behind the head when relaxed
+        if relaxed:
+            cv.rect(tcx - 8, ty - 3, 3, 5, SHIRT)
+            cv.rect(tcx - 9, ty - 5, 2, 2, SKIN)
+        else:
+            cv.rect(tcx - 7, ty + 2, 2, 8, SHIRT)
+            cv.rect(tcx - 8, ty + 9 - handL, 2, 2, SKIN)
+        # right arm reaching to the keyboard
+        if relaxed:
+            cv.rect(tcx + 5, ty - 3, 3, 5, SHIRT)
+            cv.rect(tcx + 6, ty - 5, 2, 2, SKIN)
+        else:
+            cv.rect(tcx + 5, ty + 3, 8, 2, SHIRT)
+            cv.rect(tcx + 12, ty + 3 + handR, 3, 2, SKIN)
+            cv.rect(tcx + 13, ty + 1 + handR, 2, 2, SKIN)
+            cv.rect(tcx + 11, ty + 3 + handR, 2, 1, GREEN)   # terminal wristband
+        # head, three-quarter facing the monitors
+        hx = tcx + 8
+        hy = 9 + bob + (lean if relaxed else 0)
+        cv.ellipse(hx, hy, 5, 5, SKIN)
+        # messy hair
+        cv.ellipse(hx, hy - 3, 5, 3, HAIR)
+        for dx, dy, w in ((-5, -4, 2), (-3, -6, 2), (0, -7, 3), (3, -6, 2), (5, -4, 2)):
+            cv.rect(hx + dx, hy + dy, w, 2, HAIR)
+        cv.rect(hx - 3, hy - 5, 3, 1, HAIR_HI)
+        cv.rect(hx + 1, hy - 6, 2, 1, HAIR_HI)
+        # face details
+        cv.rect(hx - 4, hy, 2, 2, WHITE)
+        cv.rect(hx + 2, hy, 2, 2, WHITE)
+        cv.px(hx - 3, hy + 1, INK)
+        cv.px(hx + 3, hy + 1, INK)
+        if eye == "blink":
+            cv.rect(hx - 4, hy + 1, 2, 1, SKIN_D)
+            cv.rect(hx + 2, hy + 1, 2, 1, SKIN_D)
+        elif eye == "happy":
+            cv.line(hx - 4, hy + 1, hx - 2, hy, INK)
+            cv.line(hx + 2, hy, hx + 4, hy + 1, INK)
+        cv.line(hx - 5, hy - 2, hx - 2, hy - 2, HAIR)
+        cv.line(hx + 1, hy - 3, hx + 4, hy - 2, HAIR)
+        cv.px(hx + 1, hy + 2, SKIN_D)
+        cv.line(hx, hy + 3, hx + 3, hy + 4, SKIN_D)
+        cv.px(hx + 3, hy + 3, SKIN_D)
+        # glow / code motes when celebrating
+        if p.get("glow"):
+            for i, col in enumerate((PURPLE_HI, CYAN, ORANGE)):
+                cv.px(hx - 8 + i * 2, hy - 12 + (i % 2), col)
+                cv.px(hx + 8 - i, hy - 10 + i, col)
+        return cv
+
+    def emit_sit(name, poses, fps=8, loop=True):
+        sheets[name] = [finish(draw_sit(p)) for p in poses]
+        anims[name] = {"cell": [40, 36], "fps": fps, "loop": loop}
+
+    emit_sit("sit_idle", [{"bob": 0}, {"bob": 0}, {"bob": 1}, {"bob": 0, "eye": "blink"}], 4, True)
+    emit_sit("sit_type", [{"handR": 0, "handL": 1}, {"handR": 1, "handL": 0, "bob": 1},
+                          {"handR": 0, "handL": 1, "bob": 0}, {"handR": 1, "handL": 0}], 11, True)
+    emit_sit("sit_lean", [{"relaxed": True, "eye": "happy", "bob": 0},
+                          {"relaxed": True, "eye": "cool", "bob": 1, "glow": True}], 3, True)
+
     # portrait 24x24
     por = Canvas(24, 24)
     cx, hy = 12, 12

@@ -12,7 +12,8 @@ const ACHIEVEMENTS_SCENE := preload("res://scenes/ui/AchievementsScreen.tscn")
 const SETTINGS_SCENE := preload("res://scenes/ui/SettingsScreen.tscn")
 const PAUSE_SCENE := preload("res://scenes/ui/PauseScreen.tscn")
 const INTRO_SCENE := preload("res://scenes/cinematics/IntroCinematic.tscn")
-const ENDING_SCENE := preload("res://scenes/cinematics/EndingCinematic.tscn")
+const PINGU_ENDING_SCENE := preload("res://scenes/cinematics/PinguEnding.tscn")
+const MIGGY_ENDING_SCENE := preload("res://scenes/cinematics/MiggyEnding.tscn")
 const CREDITS_SCENE := preload("res://scenes/cinematics/CreditsScreen.tscn")
 const LEVEL_SCENE := preload("res://scenes/levels/Level.tscn")
 const MIGGY_ULTIMATE_SCENE := preload("res://scenes/cinematics/MiggyUltimate.tscn")
@@ -293,22 +294,35 @@ func close_modal() -> void:
 func start_ending() -> void:
 	if screen != Screen.GAME:
 		return
+	if modal != null:
+		# A pause/settings/game-over screen owns the foreground; never stack
+		# an ending on top of it or start the ending twice.
+		return
 	get_tree().paused = false
-	var e := ENDING_SCENE.instantiate()
+	# Freeze the gameplay world (but not the autoloads/overlay) so enemies,
+	# hazards, timers and player input cannot interfere with the cinematic.
+	if world != null and is_instance_valid(world):
+		world.process_mode = Node.PROCESS_MODE_DISABLED
+	hud.visible = false
+	screen = Screen.ENDING
+	GameState.counters["mission_complete"] = true
+	GameState.mission_complete = true
+	GameState.write_save()
+
+	var scene := MIGGY_ENDING_SCENE if GameState.character_id == "miggy" else PINGU_ENDING_SCENE
+	var e := scene.instantiate()
 	e.theme = UISkin.theme()
 	e.set_anchors_preset(Control.PRESET_FULL_RECT)
 	e.finished.connect(show_credits)
 	overlay.add_child(e)
 	modal = e
-	GameState.counters["mission_complete"] = true
-	GameState.mission_complete = true
-	GameState.write_save()
 
 
 func show_credits() -> void:
 	if modal != null and is_instance_valid(modal):
 		modal.queue_free()
 		modal = null
+	screen = Screen.CREDITS
 	AchievementManager.on_ending_finished()
 	var c := CREDITS_SCENE.instantiate()
 	c.theme = UISkin.theme()
